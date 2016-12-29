@@ -4,7 +4,7 @@ import {Injectable} from '@angular/core';
 // import {Geolocation} from 'ionic-native';
 import {Global} from '../providers/global'
 
-declare var navigator:any;
+declare var navigator: any;
 
 /*
  Generated class for the GeoLocationService provider.
@@ -16,15 +16,14 @@ declare var navigator:any;
 export class GeoLocationService {
   public geolocationwatchID: any;
 
-  public geolocationLatitude: any = 5;
-  public geolocationLongitude: any;
-  public geolocationAccuracy: any;
-  public geolocationAltitude: any = -10;
-  public geolocationAltitudeAccuracy: any = -10;
-  public geolocationHeading: any = "some heading";
-  public geolocationSpeed: any = -10;
-
-  public geolocationTimeStamp: any;
+  public geolocationLatitude: number = 0;
+  public geolocationLongitude: number = 0;
+  public geolocationAccuracy: number = 0;
+  public geolocationAltitude: number = 0;
+  public geolocationAltitudeAccuracy: number = 0;
+  public geolocationHeading: number = 0;
+  public geolocationSpeed: number = 0;
+  public geolocationTimeStamp: any = 0;
 
 
   constructor(public global: Global) {
@@ -34,26 +33,28 @@ export class GeoLocationService {
   startWatchGeolocation() {
 
     this.geolocationwatchID = navigator.geolocation.watchPosition(
-      (position)=>{
+      (position)=> {
 
         this.geolocationLatitude = position.coords.latitude;
-            this.geolocationLongitude = position.coords.longitude;
-            this.geolocationAccuracy = position.coords.accuracy;
-            this.geolocationAltitude = position.coords.altitude;
-            this.geolocationAltitudeAccuracy = position.coords.altitudeAccuracy;
-            this.geolocationHeading = position.coords.heading;
-            this.geolocationSpeed = position.coords.speed;
+        this.geolocationLongitude = position.coords.longitude;
+        this.geolocationAccuracy = position.coords.accuracy;
+        this.geolocationAltitude = position.coords.altitude;
+        this.geolocationAltitudeAccuracy = position.coords.altitudeAccuracy;
+        this.geolocationHeading = position.coords.heading;
+        this.geolocationSpeed = position.coords.speed;
 
-             this.geolocationTimeStamp = this.global.transformTimeStamp(position.timestamp);
+        this.geolocationTimeStamp = this.global.transformTimeStamp(position.timestamp, 1);
+
+        this.getGeoLocationSessionData(position.coords.latitude, position.coords.longitude, position.coords.accuracy,
+          position.coords.altitude, position.coords.altitudeAccuracy, position.coords.heading, position.coords.speed, this.geolocationTimeStamp);
 
       },
-      (error) =>{
+      (error) => {
 
         this.geolocationTimeStamp = "Error: " + error;
 
       },
-      { enableHighAccuracy:true, maximumAge:200, timeout:60000 });
-
+      {enableHighAccuracy: true, maximumAge: 200, timeout: 60000});
 
 
     // ======================= native ionic
@@ -83,9 +84,7 @@ export class GeoLocationService {
     //   });
 
 
-
   }
-
 
 
   stopWatchGeolocation() {
@@ -108,5 +107,18 @@ export class GeoLocationService {
 
   }
 
+
+  private getGeoLocationSessionData(Latitude, Longitude, Accuracy, Altitude, AltitudeAccuracy, Heading, Speed: number, TimeStamp: any) {
+
+    this.global.geoLocationSessionData.push(TimeStamp);
+    this.global.geoLocationSessionData.push(Latitude.toFixed(5));
+    this.global.geoLocationSessionData.push(Longitude.toFixed(5));
+    this.global.geoLocationSessionData.push(Speed.toFixed(5));
+    this.global.geoLocationSessionData.push(Heading.toFixed(5));
+    this.global.geoLocationSessionData.push(Altitude.toFixed(5));
+    this.global.geoLocationSessionData.push(Accuracy.toFixed(5));
+    this.global.geoLocationSessionData.push(AltitudeAccuracy.toFixed(5));
+
+  }
 
 }

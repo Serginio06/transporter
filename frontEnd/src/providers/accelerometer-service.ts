@@ -20,7 +20,7 @@ export class AccelerometerService {
   public accelerationID: any;
 
 
-  constructor(public platform: Platform, public global:Global) {
+  constructor(public platform: Platform, public global: Global) {
     console.log('Hello AccelerometerService Provider');
 
 
@@ -35,7 +35,9 @@ export class AccelerometerService {
         this.accelerationX = acceleration.x;
         this.accelerationY = acceleration.y;
         this.accelerationZ = acceleration.z;
-        this.accelerationTimeStamp = this.global.transformTimeStamp(acceleration.timestamp);
+        this.accelerationTimeStamp = this.global.transformTimeStamp(acceleration.timestamp, 1);
+
+        this.getAccelerometerDataSession(acceleration.x, acceleration.y, acceleration.z, this.accelerationTimeStamp,);
 
         // var accelerationData = new Date(acceleration.timestamp);
         // var hours = accelerationData.getHours();
@@ -59,6 +61,19 @@ export class AccelerometerService {
     this.accelerationY = 0;
     this.accelerationZ = 0;
     this.accelerationTimeStamp = 0;
+  }
+
+  private getAccelerometerDataSession(x: number, y: number, z: number, timestamp: any) {
+
+    this.global.accelerometerSessionData.push(timestamp);
+    this.global.accelerometerSessionData.push(x.toFixed(5));
+    // this.global.accelerometerSessionData.push(Math.round(x * 10000) / 10000);
+    this.global.accelerometerSessionData.push(y.toFixed(5));
+    // this.global.accelerometerSessionData.push(Math.round(y * 10000) / 10000);
+    this.global.accelerometerSessionData.push(z.toFixed(5));
+    // this.global.accelerometerSessionData.push(Math.round(z * 10000) / 10000);
+
+
   }
 
 }

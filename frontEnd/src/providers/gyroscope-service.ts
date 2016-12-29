@@ -21,7 +21,7 @@ export class GyroscopeService {
   public gyroscopeZ: number = 0;
   public gyroscopeTimeStamp: any = 0;
   private gyroscopeID: any;
-  public GyroscopeData = [];
+  // public gyroscopeSessionData = [];
 
   constructor(public global: Global) {
     console.log('Hello GyroscopeService Provider');
@@ -44,13 +44,13 @@ export class GyroscopeService {
         this.gyroscopeX = acceleration.x;
         this.gyroscopeY = acceleration.y;
         this.gyroscopeZ = acceleration.z;
-        this.gyroscopeTimeStamp = this.global.transformTimeStamp(acceleration.timestamp);
+        this.gyroscopeTimeStamp = this.global.transformTimeStamp(acceleration.timestamp,1);
 
-        this.getGyroscopeDataSession(acceleration.x, acceleration.y,acceleration.z,acceleration.timestamp);
+        this.getGyroscopeDataSession(acceleration.x, acceleration.y,acceleration.z,this.gyroscopeTimeStamp);
 
         // intArray.push = acceleration.x;
-        // this.GyroscopeData.push = acceleration.y;
-        // self.GyroscopeData.push = acceleration.z;
+        // this.gyroscopeSessionData.push = acceleration.y;
+        // self.gyroscopeSessionData.push = acceleration.z;
         // intArray.push = this.gyroscopeTimeStamp;
 
 
@@ -69,7 +69,7 @@ export class GyroscopeService {
 
       }, options);
 
-    // this.GyroscopeData.push = intArray[0];
+    // this.gyroscopeSessionData.push = intArray[0];
 
   }
 
@@ -83,22 +83,19 @@ export class GyroscopeService {
     this.gyroscopeZ = 0;
     this.gyroscopeTimeStamp = 0;
 
-    // return this.GyroscopeData;
+    // return this.gyroscopeSessionData;
   }
 
-  public getGyroscopeDataSession (x:number,y:number,z:number,timestamp:any){
+  private getGyroscopeDataSession (x:number,y:number,z:number,timestamp:any){
 
-    this.GyroscopeData.push(x);
-    this.GyroscopeData.push(y);
-    this.GyroscopeData.push(z);
-    this.GyroscopeData.push(timestamp);
-
-  }
-
-  genrateSessionNumber () {
+    this.global.gyroscopeSessionData.push(timestamp);
+    this.global.gyroscopeSessionData.push(x.toFixed(5));
+    this.global.gyroscopeSessionData.push(y.toFixed(5));
+    this.global.gyroscopeSessionData.push(z.toFixed(5));
 
 
   }
+
 
 
 }

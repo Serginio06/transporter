@@ -71,14 +71,16 @@ export class ConnectivityService {
           }, () => {
 
             // this.clOnScreen2 = "some error in getting wifi SSID";
-            this.isWiFiNameCorrect = false;
+            // this.isWiFiNameCorrect = false; // unrem to start wifi check
+            this.isWiFiNameCorrect = true;
 
           });
 
         } else {
 
           // this.clOnScreen2 = 'WifiWizard not loaded';
-          this.isWiFiNameCorrect = false;
+          // this.isWiFiNameCorrect = false; // unrem to start wifi check
+          this.isWiFiNameCorrect = true;
 
         }
       }
@@ -91,10 +93,11 @@ export class ConnectivityService {
 
   checkWiFiNames (phoneWifi, serverWiFi) {
 
-    var check:boolean;
-    // this.clOnScreen2 = "Check wifi: " + phoneWifi + " : " + serverWiFi;
+
+
     var phoenWIFiCut =  phoneWifi.slice(1,-1);
-    this.isWiFiNameCorrect = phoenWIFiCut == serverWiFi;
+    // this.isWiFiNameCorrect = phoenWIFiCut == serverWiFi; // unrem to start wifi check
+    this.isWiFiNameCorrect = true;
 
   }
 
