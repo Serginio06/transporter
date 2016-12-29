@@ -53,9 +53,9 @@ export class HomePage {
 
 
     this.localDataSaveService.getPropertyObjFromFile().then(data => {
-        this.clOnScreen3 = JSON.stringify(this.global.propertyObj);
+        this.clOnScreen3 = this.global.propertyObj.status;
         this.global.sessionID = this.global.propertyObj.sessionId;
-        if ( this.global.propertyObj.status = "Record" ) {
+        if ( this.global.propertyObj.status ) {
           this.startDrive();
         }
 
@@ -108,8 +108,8 @@ export class HomePage {
         // =============== start collect log even if no right wifi connection
 
         if (this.logSaveCounter == this.timeLogWrite) {
-          // this.localDataSaveService.saveLog(this.global.sessionID);
-          console.log("logSaveCounter reach " + this.timeLogWrite);
+          this.localDataSaveService.saveLog();
+          // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;
         } else {
           this.logSaveCounter++;
@@ -224,7 +224,7 @@ export class HomePage {
       () => {
         this.serverService.sendLogDataToServer();
         this.localDataSaveService.saveCSVFile();
-        this.clOnScreen = "Session data has been write to file"
+        this.clOnScreen = "Сессия успешно записана в csv-файл "
       }, 1000
     );
 
@@ -237,6 +237,7 @@ export class HomePage {
     this.platform.ready().then(
       () => {
         cordova.plugins.backgroundMode.setDefaults({
+          text:'Сбор данных' + this.stateName,
           title: 'Transporter',
 
           resume: true,
@@ -263,7 +264,7 @@ export class HomePage {
   changeStatusInBackGround(){
 
     cordova.plugins.backgroundMode.configure({
-            text:'Status' + this.stateName,
+            text:'Статус - ' + this.stateName,
           });
 
   }

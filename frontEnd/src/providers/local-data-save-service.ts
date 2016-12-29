@@ -23,6 +23,8 @@ export class LocalDataSaveService {
   public appPropertyFile = "TransporterProp.txt";
   public appCSVDirectory: string = "file:///storage/emulated/0/";
   public appCSVFile = "";
+  public appLogDirectory: string = "file:///storage/emulated/0/";
+  public appLogFile = "log.csv";
 
 
   // ==============
@@ -136,7 +138,7 @@ export class LocalDataSaveService {
 
     // var csvTitle:String = "Timestamp,accelX,accelY,accelZ,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s),Roll(rads),Pitch(rads),Yaw(rads),Lat,Long,Speed(mph),TrueHeading,Alt(feet),"+"/n";
     var csvTitle: string = "SessionID,gyroTimestamp,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s), accelTimestamp,accelX,accelY,accelZ, geoTimestamp, Lat,Long,Speed(mph),TrueHeading,Alt(feet),Accuracy,AltAccuracy" + "\n";
-    var csvContent: string = csvTitle + this.global.sessionID+ ",";
+    var csvContent: string = csvTitle + this.global.sessionID + ",";
     var accelerometreContent: string = "";
     var geoLocationContent: string = "";
     var counterGeoLocationData: number = 0;
@@ -156,9 +158,8 @@ export class LocalDataSaveService {
         }
 
 
-
         if (index % 4 == 0 && index != 0) {
-          csvContent =  csvContent + accelerometreContent  + geoLocationContent + "\n" + this.global.sessionID + ",";
+          csvContent = csvContent + accelerometreContent + geoLocationContent + "\n" + this.global.sessionID + ",";
           accelerometreContent = "";
         }
 
@@ -206,7 +207,67 @@ export class LocalDataSaveService {
 
   saveLog() {
 
+    // var fileContent: string = "";
 
+    this.prepareLogContent().then(
+      (preparedLogContent) => {
+
+        this.platform.ready().then(
+          () => {
+
+            File.writeFile(
+              this.appLogDirectory,
+              this.appLogFile,
+              preparedLogContent,
+              {replace: true}
+            );
+          }
+        );
+      }
+    );
+
+
+  }
+
+  prepareLogContent(): any {
+
+    var logTitle: string = "SessionID,Time,State";
+    var logContent: string = "";
+    var currentTime = this.global.transformTimeStamp(0, 1);
+
+    return this.getLogData().then(
+      (logFileContent) => {
+        logContent = logFileContent + this.global.sessionID + ", " + currentTime + ", " + this.global.stateStatus + "\n";
+        return logContent;
+
+      }, () => {
+        return "no data to log";
+      }
+    )
+
+  }
+
+  getLogData(): any {
+
+    return this.platform.ready().then(
+      () => {
+        return File.readAsText(
+          this.appLogDirectory,
+          this.appLogFile
+        ).then(
+          (filedata) => {
+
+            return filedata;
+
+          }, (err)=> {
+            return "SessionID,Time,State" +"\n"
+          }
+        );
+      }
+    );
+
+
+    // return "";
   }
 
 

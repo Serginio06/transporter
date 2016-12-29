@@ -111,13 +111,13 @@ export class GeoLocationService {
   private getGeoLocationSessionData(Latitude, Longitude, Accuracy, Altitude, AltitudeAccuracy, Heading, Speed: number, TimeStamp: any) {
 
     this.global.geoLocationSessionData.push(TimeStamp);
-    this.global.geoLocationSessionData.push(Latitude.toFixed(5));
-    this.global.geoLocationSessionData.push(Longitude.toFixed(5));
-    this.global.geoLocationSessionData.push(Speed.toFixed(5));
-    this.global.geoLocationSessionData.push(Heading.toFixed(5));
-    this.global.geoLocationSessionData.push(Altitude.toFixed(5));
-    this.global.geoLocationSessionData.push(Accuracy.toFixed(5));
-    this.global.geoLocationSessionData.push(AltitudeAccuracy.toFixed(5));
+    this.global.geoLocationSessionData.push(Latitude);
+    this.global.geoLocationSessionData.push(Longitude);
+    this.global.geoLocationSessionData.push(Speed);
+    this.global.geoLocationSessionData.push(Heading);
+    this.global.geoLocationSessionData.push(Altitude);
+    this.global.geoLocationSessionData.push(Accuracy);
+    this.global.geoLocationSessionData.push(AltitudeAccuracy);
 
   }
 
