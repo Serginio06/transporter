@@ -3,3 +3,5 @@
 **/node_modules/**
 mongodb/*
 *.mp4
+/frontend
+/Video
