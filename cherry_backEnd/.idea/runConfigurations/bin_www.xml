@@ -4,10 +4,6 @@
       <env name="DEBUG" value="cherry_backEnd:*" />
     </envs>
     <browser url="http://localhost:3000/" />
-    <profiling one-log-file="true" do-profile="true" v8-profiler-path="" />
-    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
-      <profiling one-log-file="true" do-profile="true" v8-profiler-path="" />
-    </EXTENSION>
     <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
       <browser url="http://localhost:3000/" />
     </EXTENSION>

@@ -5,3 +5,4 @@ mongodb/*
 *.mp4
 /frontend
 /Video
+*.log
