@@ -6,3 +6,6 @@ mongodb/*
 /frontend
 /Video
 *.log
+**/npm-debug.log
+.DS_Store
+/*.env
