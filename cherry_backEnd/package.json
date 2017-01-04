@@ -6,8 +6,7 @@
     "start": "node ./bin/www"
   },
   "engines": {
-    "node": "7.2.1",
-    "npm": "3.10.10"
+    "node": "5.9.1"
   },
   "dependencies": {
     "body-parser": "~1.15.2",
@@ -19,5 +18,10 @@
     "node-sass-middleware": "0.9.8",
     "serve-favicon": "~2.3.0"
   },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
   "license": "MIT"
 }
