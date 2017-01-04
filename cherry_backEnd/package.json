@@ -1,22 +1,21 @@
 {
-  "name": "cherry-backend",
-  "version": "0.1.1",
-  "private": true,
-  "scripts": {
-    "start": "node ./bin/www"
-  },
+  "name": "transporter",
+  "version": "0.2.5",
+  "description": "transporter -> cherry_backEnd",
   "engines": {
     "node": "5.9.1"
   },
+  "main": "www",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
   "dependencies": {
-    "body-parser": "~1.15.2",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.2.0",
-    "express": "~4.14.0",
-    "jade": "~1.11.0",
-    "morgan": "~1.7.0",
-    "node-sass-middleware": "0.9.8",
-    "serve-favicon": "~2.3.0"
+    "ejs": "2.4.1",
+    "express": "4.13.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Serginio06/transporter"
   },
   "keywords": [
     "node",
