@@ -1,8 +1,0 @@
-{
-  "name": "Cherry",
-  "description": "Cherry description",
-  "repository": "https://github.com/Serginio06/transporter",
-  "logo": "http://node-js-sample.herokuapp.com/node.svg",
-  "keywords": ["node", "express", "static"],
-  "image": "heroku/nodejs"
-}

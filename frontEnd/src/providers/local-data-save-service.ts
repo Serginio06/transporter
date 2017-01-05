@@ -4,6 +4,7 @@ import {Injectable} from '@angular/core';
 import {File} from 'ionic-native';
 import {Platform} from 'ionic-angular'
 import {Global} from '../providers/global'
+import {ServerService} from '../providers/server-service';
 
 /*
  Generated class for the LocalDataSaveService provider.
@@ -32,7 +33,7 @@ export class LocalDataSaveService {
   public clOnScreen5: any = "";
 
 
-  constructor(public platform: Platform, public global: Global) {
+  constructor(public platform: Platform, public global: Global, public serverService:ServerService) {
     console.log('Hello LocalDataSaveService Provider');
     // var this.platform = platform;
 
@@ -114,8 +115,6 @@ export class LocalDataSaveService {
     this.appCSVFile = "data_ID_" + this.global.sessionID + "_" + currentTime + ".csv";
 
     fileContent = this.prepareCSVContent();
-    // this.clOnScreen5 = "File= " + this.appCSVFile;
-    // this.clOnScreen5 = "fileContent= " + fileContent;
 
 
     this.platform.ready().then(
@@ -129,7 +128,7 @@ export class LocalDataSaveService {
       }
     );
 
-
+    this.serverService.sendLogDataToServer();
     return true;
 
   }
@@ -137,8 +136,8 @@ export class LocalDataSaveService {
   prepareCSVContent(): string {
 
     // var csvTitle:String = "Timestamp,accelX,accelY,accelZ,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s),Roll(rads),Pitch(rads),Yaw(rads),Lat,Long,Speed(mph),TrueHeading,Alt(feet),"+"/n";
-    var csvTitle: string = "SessionID,gyroTimestamp,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s), accelTimestamp,accelX,accelY,accelZ, geoTimestamp, Lat,Long,Speed(mph),TrueHeading,Alt(feet),Accuracy,AltAccuracy" + "\n";
-    var csvContent: string = csvTitle + this.global.sessionID + ",";
+    var csvTitle: string = "IMEI, SessionID,gyroTimestamp,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s), accelTimestamp,accelX,accelY,accelZ, geoTimestamp, Lat,Long,Speed(mph),TrueHeading,Alt(feet),Accuracy,AltAccuracy" + "\n";
+    var gyroscopeContent: string = csvTitle + this.global.phoneIMEI + "," + this.global.sessionID + ",";
     var accelerometreContent: string = "";
     var geoLocationContent: string = "";
     var counterGeoLocationData: number = 0;
@@ -159,15 +158,19 @@ export class LocalDataSaveService {
 
 
         if (index % 4 == 0 && index != 0) {
-          csvContent = csvContent + accelerometreContent + geoLocationContent + "\n" + this.global.sessionID + ",";
+          // if ( geoLocationContent ) {
+          //   geoLocationContent = "," + geoLocationContent;
+          // }
+
+          gyroscopeContent = gyroscopeContent + accelerometreContent.slice(0, -1) + geoLocationContent + "\n" + this.global.phoneIMEI + "," + this.global.sessionID + ",";
           accelerometreContent = "";
         }
 
-        csvContent = csvContent + item + ",";
+        gyroscopeContent = gyroscopeContent + item + ",";
         accelerometreContent = accelerometreContent + this.global.accelerometerSessionData[index] + ",";
 
         if (currentAccelTimestamp >= this.global.geoLocationSessionData[counterGeoLocationData]) {
-          geoLocationContent = "";
+          geoLocationContent = ",";
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData] + ",";
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 1] + ",";
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 2] + ",";
@@ -175,7 +178,7 @@ export class LocalDataSaveService {
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 4] + ",";
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 5] + ",";
           geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 6] + ",";
-          geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 7] + ",";
+          geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 7];
 
           counterGeoLocationData = counterGeoLocationData + 8;
         } else {
@@ -197,10 +200,10 @@ export class LocalDataSaveService {
       }
     );
 
-    csvContent = csvContent + accelerometreContent + geoLocationContent + "\n";
+    gyroscopeContent = gyroscopeContent + accelerometreContent.slice(0, -1) + geoLocationContent + "\n";
 
 
-    return csvContent;
+    return gyroscopeContent;
 
   }
 
@@ -237,7 +240,7 @@ export class LocalDataSaveService {
 
     return this.getLogData().then(
       (logFileContent) => {
-        logContent = logFileContent + this.global.sessionID + ", " + currentTime + ", " + this.global.stateStatus + "\n";
+        logContent = logFileContent + this.global.phoneIMEI + "," + this.global.sessionID + ", " + currentTime + ", " + this.global.stateStatus + "\n";
         return logContent;
 
       }, () => {
@@ -260,7 +263,8 @@ export class LocalDataSaveService {
             return filedata;
 
           }, (err)=> {
-            return "SessionID,Time,State" +"\n"
+            // return "SessionID,Time,State" + "\n"
+            return "Error:" + err;
           }
         );
       }

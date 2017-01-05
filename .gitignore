@@ -1,5 +1,8 @@
+.idea
 .DS_Store
 **/.DS_Store
+**/.idea
+**/.git
 **/node_modules/**
 mongodb/*
 *.mp4
@@ -8,4 +11,12 @@ mongodb/*
 *.log
 **/npm-debug.log
 .DS_Store
-/*.env
+**/*.env
+# Node build artifacts
+node_modules
+npm-debug.log
+
+# Local development
+**/*.env
+**/*.dev
+

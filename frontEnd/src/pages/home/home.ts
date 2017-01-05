@@ -45,7 +45,7 @@ export class HomePage {
               public serverService: ServerService, public accelerometerService: AccelerometerService, public gyroscopeService: GyroscopeService,
               public geoLocationService: GeoLocationService, public localDataSaveService: LocalDataSaveService, public global: Global) {
 
-    this.onInit();
+    // this.onInit();
   }
 
 

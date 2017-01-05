@@ -20,6 +20,7 @@ export class Global {
   public gyroscopeSessionData: any = [];
   public accelerometerSessionData:any =[];
   public geoLocationSessionData:any =[];
+  public phoneIMEI:string ="";
 
   constructor() {
     console.log('Hello Global Provider');

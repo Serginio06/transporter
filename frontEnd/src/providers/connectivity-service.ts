@@ -93,8 +93,6 @@ export class ConnectivityService {
 
   checkWiFiNames (phoneWifi, serverWiFi) {
 
-
-
     var phoenWIFiCut =  phoneWifi.slice(1,-1);
     // this.isWiFiNameCorrect = phoenWIFiCut == serverWiFi; // unrem to start wifi check
     this.isWiFiNameCorrect = true;
