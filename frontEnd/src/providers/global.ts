@@ -1,4 +1,6 @@
 import {Injectable} from '@angular/core';
+import {Platform} from 'ionic-angular';
+import {File} from 'ionic-native';
 // import { Http } from '@angular/http';
 // import 'rxjs/add/operator/map';
 // import
@@ -21,8 +23,14 @@ export class Global {
   public accelerometerSessionData:any =[];
   public geoLocationSessionData:any =[];
   public phoneIMEI:string ="";
+  public errContent:string = "";
+  public appFilesDirectory: string = "file:///storage/emulated/0/";
+  public appLogFile = "log.csv";
+  public appCSVFile = "data" + ".csv";
+  public logTitle = "IMEI,timestamp,SessionID,Time,State" + "\n";
+  public dataTitle = "IMEI, sendTimestamp, SessionID,gyroTimestamp,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s), accelTimestamp,accelX,accelY,accelZ, geoTimestamp, Lat,Long,Speed(mph),TrueHeading,Alt(feet),Accuracy,AltAccuracy" + "\n";
 
-  constructor() {
+  constructor(public platform: Platform) {
     console.log('Hello Global Provider');
     this.propertyObj.sessionId = this.sessionID;
     this.propertyObj.status = this.stateStatus;
@@ -56,6 +64,65 @@ export class Global {
 
 
     return formatedTime;
+  }
+
+  globalCleanLogFile(): any {
+
+    // let logTitle =
+
+    return this.platform.ready().then(
+      () => {
+
+        return File.writeFile(
+          this.appFilesDirectory,
+          this.appLogFile,
+          this.logTitle,
+          {replace: true}
+        );
+      }
+    );
+
+  }
+
+  globalCleanDataFile(): any {
+
+    // let logTitle =
+
+    return this.platform.ready().then(
+      () => {
+
+        return File.writeFile(
+          this.appFilesDirectory,
+          this.appCSVFile,
+          this.dataTitle,
+          {replace: true}
+        );
+      }
+    );
+
+  }
+
+  saveErrorLog(err: string): any {
+
+    var currentTime = this.transformTimeStamp(0, 2);
+    // var fileContent: string;
+
+    // this.appCSVFile = "data_ID_" + this.global.sessionID + "_" + currentTime + ".csv";
+    var errorFile = "errorLog_" + currentTime + ".txt";
+
+    return this.platform.ready().then(
+      () => {
+
+        return File.writeFile(
+          this.appFilesDirectory,
+          errorFile,
+          err,
+          {replace: true}
+        );
+      }
+    );
+
+
   }
 
 

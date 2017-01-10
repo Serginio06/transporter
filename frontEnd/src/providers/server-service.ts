@@ -1,19 +1,23 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 // import { Http } from '@angular/http';
 // import 'rxjs/add/operator/map';
-import {Platform} from 'ionic-angular'
-import {Global} from '../providers/global'
-import {HTTP} from 'ionic-native'
+// import {LocalDataSaveService} from '../providers/local-data-save-service';
+import {Platform} from 'ionic-angular';
+import {Global} from '../providers/global';
+import {HTTP} from 'ionic-native';
 import 'rxjs/add/operator/map';
+import {ConnectivityService} from '../providers/connectivity-service';
+import { Device } from 'ionic-native';
+
 
 /*
-  Generated class for the ServerService provider.
+ Generated class for the ServerService provider.
 
-  See https://angular.io/docs/ts/latest/guide/dependency-injection.html
-  for more info on providers and Angular 2 DI.
-*/
+ See https://angular.io/docs/ts/latest/guide/dependency-injection.html
+ for more info on providers and Angular 2 DI.
+ */
 
-let SERVER_URL = 'https://cherry2016.herokuapp.com/data/log';
+
 // let SERVER_URL = 'https://httpbin.org/ip';
 
 @Injectable()
@@ -25,19 +29,19 @@ export class ServerService {
 
   // constructor(public http: Http, public platform: Platform) {
   // constructor(public platform: Platform, private global:Global, public http: Http) {
-  constructor(public platform: Platform, private global:Global) {
+  constructor(public platform: Platform, public global: Global, public connectivityService: ConnectivityService ) {
     console.log('Hello ServerService Provider');
-    this.http = http;
-
+    // this.http = http;
+    this.global.phoneIMEI = this.getPhoneIMEI();
   }
 
 
-  getServerWifiName():string {
+  getServerWifiName(): string {
 
-      // this.clOnScreen4 = "we are in getServerWifiName ";
-    this.global.phoneIMEI = this.getPhoneIMEI();
+    // this.clOnScreen4 = "we are in getServerWifiName ";
 
-    if ( this.wifiName ) {
+
+    if (this.wifiName) {
 
       // here should be code do get WiFi name from Server based on IMEI
 
@@ -51,76 +55,82 @@ export class ServerService {
     return this.wifiName;
   }
 
-  getPhoneIMEI (): string {
+
+
+
+
+  sendDataToServer(dataToSend: string, dataType: string) {
+
+    if (this.connectivityService.isOnline()) {
+
+
+      let headers = JSON.parse('{"Content-Type": "application/json"}');
+
+      if (dataType != "data" && dataType != "log") {
+        this.clOnScreen4 = "Error: dataType is wrong" + dataType;
+        this.global.errContent = "Error: dataType is wrong" + dataType;
+      } else {
+
+        // this.clOnScreen4 = "in else";
+        let SERVER_URL = 'https://cherry2016.herokuapp.com/data/' + dataType;
+        // let SERVER_URL = 'https://cherry2016.herokuapp.com/data/log';
+
+        dataToSend = dataToSend.replace(/\n/g, "\\n");
+        dataToSend = dataToSend.slice(0, -2);
+        // this.global.errContent = dataToSend;
+
+        // this.global.saveErrorLog(dataToSend);
+
+        var body = JSON.parse('{"data":"' + dataToSend + '"}');
+
+        // this.clOnScreen4 = "b: " + body;
+
+        // HTTP.get('https://cherry2016.herokuapp.com/', {}, {})
+
+        HTTP.post(SERVER_URL, body, headers)
+          .then(data => {
+
+            if (dataType == "log") {
+              this.global.globalCleanLogFile();
+            } else if (dataType == "data") {
+              this.global.globalCleanDataFile();
+            }
+
+
+            // console.log(data.status);
+            // console.log(data.data); // data received by server
+            // console.log(data.headers);
+
+          })
+          .catch(error => {
+
+            // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
+            this.clOnScreen4 = "Err during data sending. See errorLog file";
+            // this.global.errContent = "Log sent err:" + JSON.stringify(error.error);
+            this.global.saveErrorLog("Log sent err:" + JSON.stringify(error));
+            // console.log(error);
+            // console.log(error.status);
+            // console.log(error.error); // error message as string
+            // console.log(error.headers);
+            // return error.status;
+
+          });
+
+      }
+
+    } else {
+      this.clOnScreen4 = "Phone is offline. Try send data later"
+    }
+  }
+
+  getPhoneIMEI(): string {
 
     // here shoudl be code to get phone's IMEI
     // this.clOnScreen4 = "we are in getPhoneIMEI ";
-    return "IMEI1111"
-  }
 
-
-
-
-  sendLogDataToServer (){
-
-
-    // this.http.get(SERVER_URL).map(res => res.json()).subscribe(data => {
-    //   this.clOnScreen4 = "status" + JSON.stringify (data);
-    // console.log("status" + JSON.stringify (data));
-    //
-    //
-    // });
-
-// this.http.get(SERVER_URL)
-//   .map(res => {
-//
-//     this.clOnScreen4 = "status" + res;
-//     console.log("status" + res);
-//
-//
-//   });
-
-
-    // let headers = JSON.parse('{"Content-Type": "text/plain"}');
-    let headers = JSON.parse('{"Content-Type": "application/json"}');
-    // let options = new RequestOptions({
-    //   headers: headers
-    // });
-
-    // let str1 = '{"data": "SessionID,Time,State';
-    // let str2 = '\\n';
-    // let str3 = '5, 29-12-2016 14:56:01.997, Record"}';
-    // let string = str1.concat(str2,str3);
-
-    let body = JSON.parse('{"data": "SessionID,Time,State\\n 5, 29-12-2016 14:56:01.997, Record",' +
-      '"imei":"' + this.global.phoneIMEI + '"}');
-
-    console.log("header: " + headers );
-    console.log("body: " + body );
-
-    // HTTP.get('https://cherry2016.herokuapp.com/', {}, {})
-    HTTP.post(SERVER_URL,body,headers)
-      .then(data => {
-
-        this.clOnScreen4 = "s: " + JSON.stringify(data);
-        // console.log(data.status);
-        // console.log(data.data); // data received by server
-        // console.log(data.headers);
-
-      })
-      .catch(error => {
-
-        this.clOnScreen4 = "st " + JSON.stringify(error);
-        console.log(error);
-        console.log(error.status);
-        console.log(error.error); // error message as string
-        console.log(error.headers);
-
-      });
-
-
-
-
+    // console.log('Device UUID is: ' + Device.uuid);
+    // this.clOnScreen4 ="UUID= " + Device.uuid;
+    return Device.uuid;
   }
 
 

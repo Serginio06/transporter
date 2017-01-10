@@ -34,7 +34,7 @@ export class HomePage {
   public isServiceStart: boolean = false;
   // private startOnlineCheck: boolean = false;
   private logSaveCounter: number = 0; // write log every 5 sec
-  private wifiCheckCounter: number = this.timeWiFiCheck-1; // check wifi name every 30 sec
+  private wifiCheckCounter: number = this.timeWiFiCheck - 1; // check wifi name every 30 sec
   public clOnScreen3: any = "";
   public clOnScreen: any = "";
   public isStorageFileExist: string;
@@ -45,7 +45,7 @@ export class HomePage {
               public serverService: ServerService, public accelerometerService: AccelerometerService, public gyroscopeService: GyroscopeService,
               public geoLocationService: GeoLocationService, public localDataSaveService: LocalDataSaveService, public global: Global) {
 
-    // this.onInit();
+    this.onInit();
   }
 
 
@@ -55,19 +55,12 @@ export class HomePage {
     this.localDataSaveService.getPropertyObjFromFile().then(data => {
         this.clOnScreen3 = this.global.propertyObj.status;
         this.global.sessionID = this.global.propertyObj.sessionId;
-        if ( this.global.propertyObj.status ) {
+        if (this.global.propertyObj.status) {
           this.startDrive();
         }
 
       }
     );
-
-
-    // Promise.all([this.localDataSaveService.getPropertyObjFromFile()]).then(data => {
-    //   this.clOnScreen3 = JSON.stringify(this.global.propertyObj);
-    //
-    //
-    // });
 
 
   }
@@ -82,13 +75,13 @@ export class HomePage {
       this.buttonText = "Stop";
 
       this.isServiceStart = !this.isServiceStart;
-      this.startAutoAppLaunch ();
+      this.startAutoAppLaunch();
       this.checkOnlineStatus();
 
     } else {
       this.buttonText = "Drive";
       this.isServiceStart = !this.isServiceStart;
-      this.stopAutoAppLaunch ();
+      this.stopAutoAppLaunch();
 
     }
 
@@ -108,6 +101,7 @@ export class HomePage {
         // =============== start collect log even if no right wifi connection
 
         if (this.logSaveCounter == this.timeLogWrite) {
+          // this.clOnScreen =
           this.localDataSaveService.saveLog();
           // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;
@@ -167,9 +161,6 @@ export class HomePage {
   }
 
 
-
-
-
   private changeCollectionState(x: string): void {
     if (x === undefined) {
       this.stateName = "";
@@ -222,8 +213,8 @@ export class HomePage {
     // save collected session data to server and to local file
     setTimeout(
       () => {
-        this.serverService.sendLogDataToServer();
-        this.localDataSaveService.saveCSVFile();
+        // this.serverService.sendDataToServer();
+        this.clOnScreen = "data: " + this.localDataSaveService.saveCSVFile();
         this.clOnScreen = "Сессия успешно записана в csv-файл "
       }, 1000
     );
@@ -231,13 +222,13 @@ export class HomePage {
 
   }
 
-  private startAutoAppLaunch () {
+  private startAutoAppLaunch() {
 
     cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
     this.platform.ready().then(
       () => {
         cordova.plugins.backgroundMode.setDefaults({
-          text:'Сбор данных' + this.stateName,
+          text: 'Сбор данных' + this.stateName,
           title: 'Transporter',
 
           resume: true,
@@ -261,33 +252,33 @@ export class HomePage {
     );
   }
 
-  changeStatusInBackGround(){
+  changeStatusInBackGround() {
 
     cordova.plugins.backgroundMode.configure({
-            text:'Статус - ' + this.stateName,
-          });
+      text: 'Статус - ' + this.stateName,
+    });
 
   }
 
-  private stopAutoAppLaunch () {
+  private stopAutoAppLaunch() {
     cordova.plugins.autoStart.disable();
     cordova.plugins.backgroundMode.disable();
   }
-
 
 
   // ======= file storage check ==============
 
   writePropertyFile() {
 
+
     // this.localDataSaveService.saveAppPropertyToFile();
     // this.localDataSaveService.getPropertyObjFromFile();
-    this.localDataSaveService.saveCSVFile();
+    // this.localDataSaveService.saveErrorLog(this.global.errContent);
+
   }
 
 
   // ===== promist functions ===========
-
 
 
 }

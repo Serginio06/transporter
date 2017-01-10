@@ -35,15 +35,15 @@
 <!--<button id="mainButton" ion-button (click)="startDrive()" full icon-left>some text</button>-->
 <!--<button *ngIf="stateName != ''"ion-button (click)="startDrive()" full icon-left><ion-icon name="car"></ion-icon>{{buttonText}}</button>-->
 <button ion-button (click)="startDrive()" full icon-left><ion-icon name="car"></ion-icon>{{buttonText}}</button>
-  <button ion-button (click)="serverService.sendLogDataToServer()" full icon-left> <ion-icon name="lock"></ion-icon>send data to server</button>
+  <button ion-button (click)="writePropertyFile()" full icon-left> <ion-icon name="lock"></ion-icon>send data to server</button>
 <!--<ion-item>{{localDataSaveService.returnCheckFile}}</ion-item>-->
 
 <!--<ion-item *ngIf="connectivityService.clOnScreen !='' || connectivityService.clOnScreen2 !='' ">{{clOnScreen}}</ion-item>-->
-  <ion-item *ngIf="clOnScreen3 !=''">clOnScreen3: {{clOnScreen3}}</ion-item>
+  <ion-item *ngIf="clOnScreen3 !=''">c3: {{clOnScreen3}}</ion-item>
   <!--<ion-item *ngIf="connectivityService.clOnScreen2 !=''">clOnScreen2: {{connectivityService.clOnScreen2}}</ion-item>-->
   <ion-item *ngIf="clOnScreen !=''">{{clOnScreen}}</ion-item>
-  <ion-item *ngIf="serverService.clOnScreen4 !=''">clOnScreen4: {{serverService.clOnScreen4}}</ion-item>
-  <!--<ion-item *ngIf="localDataSaveService.clOnScreen5 !=''">clOnScreen5: {{localDataSaveService.clOnScreen5}}</ion-item>-->
+  <ion-item *ngIf="serverService.clOnScreen4 !=''">c4: {{serverService.clOnScreen4}}</ion-item>
+  <ion-item *ngIf="localDataSaveService.clOnScreen5 !=''">c5: {{localDataSaveService.clOnScreen5}}</ion-item>
   <!--Accelerometer data-->
   <ion-item *ngIf="accelerometerService.accelerationX !=''"><b>Accelerometer data:</b> </ion-item>
   <ion-item *ngIf="accelerometerService.accelerationX !=''">X: {{accelerometerService.accelerationX}}</ion-item>
