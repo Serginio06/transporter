@@ -312,12 +312,15 @@ export class HomePage {
 
   // ======= file storage check ==============
 
-  writePropertyFile() {
+  gyroscopeCheck() {
 
 
-    // this.localDataSaveService.saveAppPropertyToFile();
-    // this.localDataSaveService.getPropertyObjFromFile();
-    // this.localDataSaveService.saveErrorLog(this.global.errContent);
+    this.gyroscopeService.checkGyroscopeAvailability().then(
+      data => {
+        this.clOnScreen3 = data;
+      }
+    );
+    // tJSON.stringify(this.gyroscopeService.checkGyroscopeAvailability());
 
   }
 
