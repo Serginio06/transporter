@@ -25,7 +25,7 @@ declare var cordova: any;
 export class HomePage {
   // ===== configuration variables ========
   private timeWiFiCheck: number = 15; // interval of time to check if wifi available in sec
-  private timeLogWrite = 5; // interval of time to write log file in sec
+  private timeLogWrite = 120; // interval of time to write log file in sec
 
   //=============
   // private stateStatus: string = "";
@@ -36,7 +36,7 @@ export class HomePage {
   private logSaveCounter: number = 0; // write log every 5 sec
   private wifiCheckCounter: number = this.timeWiFiCheck - 1; // check wifi name every 30 sec
   public clOnScreen3: any = "";
-  public clOnScreen: any = "";
+  // public clOnScreen: any = "";
   public isStorageFileExist: string;
   public stautusCheckGeneralCounter: number = 0;
 
@@ -53,11 +53,16 @@ export class HomePage {
 
 
     this.localDataSaveService.getPropertyObjFromFile().then(data => {
-        this.clOnScreen3 = this.global.propertyObj.status;
+        // this.clOnScreen3 = JSON.stringify(this.global.propertyObj);
         this.global.sessionID = this.global.propertyObj.sessionId;
+        this.global.ServerWifiName = this.global.propertyObj.ServerWifiName;
+
+      if (!this.global.ServerWifiName) {this.checkForWiFiNameRegistred();
+      } else {
         if (this.global.propertyObj.status) {
           this.startDrive();
         }
+      }
 
       }
     );
@@ -65,26 +70,39 @@ export class HomePage {
 
   }
 
+
   public startDrive(): void {
+    this.global.clOnScreen = "";
 
-    // ========= Start network connection checking
-    // this.startOnlineCheck ? this.startOnlineCheck = false : this.startOnlineCheck = true;
+    if (this.global.ServerWifiName) {
 
 
-    if (!this.isServiceStart) {
-      this.buttonText = "Stop";
 
-      this.isServiceStart = !this.isServiceStart;
-      this.startAutoAppLaunch();
-      this.checkOnlineStatus();
+      // ========= Start network connection checking
+      // this.startOnlineCheck ? this.startOnlineCheck = false : this.startOnlineCheck = true;
 
+
+      if (!this.isServiceStart) {
+        this.buttonText = "Stop";
+
+        this.isServiceStart = !this.isServiceStart;
+        this.startAutoAppLaunch();
+        this.checkOnlineStatus();
+
+      } else {
+        this.buttonText = "Drive";
+        this.isServiceStart = !this.isServiceStart;
+        this.stopAutoAppLaunch();
+
+      }
     } else {
-      this.buttonText = "Drive";
-      this.isServiceStart = !this.isServiceStart;
-      this.stopAutoAppLaunch();
+
+      // There is NO this.global.ServerWifiName
+      this.global.clOnScreen = this.global.msg2;
+      this.global.propertyObj.status = "Wait";
+      this.checkForWiFiNameRegistred();
 
     }
-
 
   }
 
@@ -114,7 +132,8 @@ export class HomePage {
 
           // console.log("wifiCheckCounter reach " + this.timeWiFiCheck);
           this.wifiCheckCounter = 0;
-          this.connectivityService.getPhoneWiFiNameAndCheck(this.serverService.getServerWifiName());
+          // this.connectivityService.getPhoneWiFiNameAndCheck(this.serverService.getServerWifiName());
+          this.connectivityService.getPhoneWiFiNameAndCheck();
           // this.checkStatus();
 
         } else {
@@ -214,8 +233,8 @@ export class HomePage {
     setTimeout(
       () => {
         // this.serverService.sendDataToServer();
-        this.clOnScreen = "data: " + this.localDataSaveService.saveCSVFile();
-        this.clOnScreen = "Сессия успешно записана в csv-файл "
+        this.localDataSaveService.saveCSVFile();
+        this.global.clOnScreen = "Сессия успешно записана в csv-файл "
       }, 1000
     );
 
@@ -265,6 +284,31 @@ export class HomePage {
     cordova.plugins.backgroundMode.disable();
   }
 
+  private checkForWiFiNameRegistred(): any {
+
+    // this.clOnScreen = "in checkForWiFiNameRegistred()";
+    if (!this.global.ServerWifiName) {
+       this.serverService.getServerWifiName().then(
+        (result) => {
+          if (result) {
+            // this.clOnScreen = "checkForWiFiNameRegistred()=" + result;
+            this.localDataSaveService.saveAppPropertyToFile();
+
+            // check if previouse session was interupted
+            if (this.global.propertyObj.status) {
+              this.startDrive();
+            }
+
+            return result;
+          } else {
+            this.global.clOnScreen = this.global.msg1;
+            return result;
+          }
+        }
+      )
+    }
+
+  }
 
   // ======= file storage check ==============
 

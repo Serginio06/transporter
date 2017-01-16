@@ -60,6 +60,7 @@ export class LocalDataSaveService {
 
     this.global.propertyObj.sessionId = this.global.sessionID;
     this.global.propertyObj.status = this.global.stateStatus;
+    this.global.propertyObj.ServerWifiName = this.global.ServerWifiName;
     // this.clOnScreen5 = "Saving to file.SessionID= " + this.global.propertyObj.sessionId;
     // JSON.stringify( this.global.propertyObj);
 
@@ -93,13 +94,6 @@ export class LocalDataSaveService {
 
             return this.global.propertyObj;
 
-            // if ( !this.global.propertyObj.status ) { this.clOnScreen5 = "there is no status property" }
-            // if ( !this.global.propertyObj.sessionId ) { this.clOnScreen5 = "there is no sessionId property" }
-            //
-            // if ( this.global.propertyObj.status && this.global.propertyObj.sessionId ) {
-            //   this.clOnScreen5 = "From file: " + this.global.propertyObj.status + ":" + this.global.propertyObj.sessionId ;
-            // }
-
 
           }
         );
@@ -130,12 +124,12 @@ export class LocalDataSaveService {
               fileContent,
               {replace: true}
             )
-            .then(
-              (result) => {
+              .then(
+                (result) => {
 
-                return this.serverService.sendDataToServer(fileContent, "data");
-              }
-            );
+                  return this.serverService.sendDataToServer(fileContent, "data");
+                }
+              );
 
 
           }
@@ -164,7 +158,7 @@ export class LocalDataSaveService {
 
 
         var timeInMs = Date.now();
-        var gyroscopeContent: string = csvTitle + this.global.phoneIMEI + "," + timeInMs + "," + this.global.sessionID + ",";
+        var gyroscopeContent: string = csvTitle + this.global.phoneUUID + "," + timeInMs + "," + this.global.sessionID + ",";
         var accelerometreContent: string = "";
         var geoLocationContent: string = "";
         var counterGeoLocationData: number = 0;
@@ -178,6 +172,7 @@ export class LocalDataSaveService {
 
             if (index % 4 == 0) {
               currentAccelTimestamp = this.global.accelerometerSessionData[index];
+              // this.global.clOnScreen = "curAccTime" + currentAccelTimestamp;
             }
 
 
@@ -186,9 +181,9 @@ export class LocalDataSaveService {
               //   accelerometreContent = "," + accelerometreContent;
               // }
 
-              gyroscopeContent = gyroscopeContent + accelerometreContent.slice(0, -1) + geoLocationContent + "\n" + this.global.phoneIMEI + "," + timeInMs + "," + this.global.sessionID + ",";
+              gyroscopeContent = gyroscopeContent + accelerometreContent.slice(0, -1) + geoLocationContent + "\n" + this.global.phoneUUID + "," + timeInMs + "," + this.global.sessionID + ",";
 
-              // accelerometreContent = accelerometreContent + gyroscopeContent.slice(0, -1) + geoLocationContent + "\n" + this.global.phoneIMEI + "," + timeInMs + "," + this.global.sessionID + ",";
+              // accelerometreContent = accelerometreContent + gyroscopeContent.slice(0, -1) + geoLocationContent + "\n" + this.global.phoneUUID + "," + timeInMs + "," + this.global.sessionID + ",";
 
               accelerometreContent = "";
             }
@@ -201,29 +196,39 @@ export class LocalDataSaveService {
               gyroscopeContent = gyroscopeContent + this.global.gyroscopeSessionData[index] + ",";
               // accelerometreContent = accelerometreContent + this.global.accelerometerSessionData[index] + ",";
             } else {
-              gyroscopeContent = gyroscopeContent + "null,";
+              gyroscopeContent = gyroscopeContent + "noData,";
               // accelerometreContent = accelerometreContent + "null,";
             }
 
             // this.clOnScreen5 = "noGPS= " + this.global.geoLocationSessionData[counterGeoLocationData]
 
+            if (this.global.geoLocationSessionData.length) {
 
-            if (currentAccelTimestamp >= this.global.geoLocationSessionData[counterGeoLocationData]) {
-              geoLocationContent = ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 1] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 2] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 3] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 4] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 5] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 6] + ",";
-              geoLocationContent = geoLocationContent + this.global.geoLocationSessionData[counterGeoLocationData + 7];
-              counterGeoLocationData = counterGeoLocationData + 8;
+
+              if (currentAccelTimestamp >= this.global.geoLocationSessionData[counterGeoLocationData]) {
+                geoLocationContent = ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 1]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 2]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 3]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 4]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 5]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 6]) + ",";
+                geoLocationContent = geoLocationContent + this.global.changeEmptyValueOnNull(this.global.geoLocationSessionData[counterGeoLocationData + 7]);
+                counterGeoLocationData = counterGeoLocationData + 8;
+              } else {
+                // this.clOnScreen5 = "no GPS data so far";
+                // geoLocationContent = ",";
+                // geoLocationContent = geoLocationContent + "noData,noData,noData,noData,noData,noData,noData,noData";
+                // geoLocationContent = geoLocationContent + "null,null,null,null,null,null,null,null";
+              }
             } else {
+              //if No GPS data from phone for any reason
+              // this.clOnScreen5 = "GPS turned OFF";
               geoLocationContent = ",";
-              geoLocationContent = geoLocationContent + "null,null,null,null,null,null,null,null";
-            }
+              geoLocationContent = geoLocationContent + "noData,noData,noData,noData,noData,noData,noData,noData";
 
+            }
           }
         );
 
@@ -281,10 +286,6 @@ export class LocalDataSaveService {
             }
           );
         }
-        // else {
-        //
-        //   return "Error: no content to write in log";
-        // }
 
 
       }
@@ -295,7 +296,7 @@ export class LocalDataSaveService {
 
   prepareLogContent(): any {
 
-    var logTitle: string = "IMEI,timestamp,SessionID,Time,State";
+    // var logTitle: string = "UUID,timestamp,SessionID,Time,State";
     var logContent: string = "";
     var currentTime = this.global.transformTimeStamp(0, 1);
     var timeInMs = Date.now();
@@ -303,7 +304,7 @@ export class LocalDataSaveService {
 
     return this.getLogData().then(
       (logFileContent) => {
-        logContent = logFileContent + this.global.phoneIMEI + "," + timeInMs + "," + this.global.sessionID + ", " + currentTime + ", " + this.global.stateStatus + "\n";
+        logContent = logFileContent + this.global.phoneUUID + "," + timeInMs + "," + this.global.sessionID + ", " + currentTime + ", " + this.global.stateStatus + "\n";
 
         // this.clOnScreen5 = logContent;
 
@@ -371,23 +372,7 @@ export class LocalDataSaveService {
     // return "";
   }
 
-  // cleanLogFile(): any {
-  //
-  //   // let logTitle =
-  //
-  //   return this.platform.ready().then(
-  //     () => {
-  //
-  //       return File.writeFile(
-  //         this.appLogDirectory,
-  //         this.appLogFile,
-  //         this.logTitle,
-  //         {replace: true}
-  //       );
-  //     }
-  //   );
-  //
-  // }
+
 
 
 }
