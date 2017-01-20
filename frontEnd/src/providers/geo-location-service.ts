@@ -51,8 +51,8 @@ export class GeoLocationService {
       },
       (error) => {
 
-        this.geolocationTimeStamp = "Error: " + error;
-
+        // this.geolocationTimeStamp = "Error: " + error;
+        this.global.saveErrorLog("startWatchGeolocation", "Error: " + error)
       },
       {enableHighAccuracy: true, maximumAge: 200, timeout: 60000});
 
@@ -119,6 +119,34 @@ export class GeoLocationService {
     this.global.geoLocationSessionData.push(Accuracy);
     this.global.geoLocationSessionData.push(AltitudeAccuracy);
 
+  }
+
+
+  checkGPSAvailability() {
+
+    navigator.geolocation.getCurrentPosition(
+      (position)=> {
+
+        // if (position.timestamp) {
+        //
+        // }
+        // // else  {
+        // //   this.global.presentAlert("Check GPS", "GPS NOT available" + position.timestamp.toString() , "OKR");
+        // // }
+
+        this.global.isGPSAvailable = true;
+
+
+      },
+      ( PositionError) => {
+        this.global.isGPSAvailable = false;
+        // this.geolocationTimeStamp = "Error: " + error;
+        // this.global.clOnScreen = this.global.msg4;
+        this.global.saveErrorLog("checkGPSAvailability", "Error: " + JSON.stringify(PositionError));
+
+      },
+      {enableHighAccuracy: true, maximumAge: 200, timeout: 10000}
+    )
   }
 
 }

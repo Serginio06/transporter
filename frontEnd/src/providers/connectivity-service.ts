@@ -64,11 +64,11 @@ export class ConnectivityService {
     if (this.global.ServerWifiName) {
       // this.clOnScreen2 = "Start scan for wifi SSID";
 
-        this.platform.ready().then(
+      this.platform.ready().then(
         () => {
 
           if (typeof WifiWizard !== 'undefined') {
-
+            // this.clOnScreen2 = "WifiWizard is defined";
             // var wifiName = WifiWizard.getCurrentSSID((s) => {
             //
             //   this.checkWiFiNames (s, wifiNameToCheck);
@@ -82,29 +82,32 @@ export class ConnectivityService {
             // });
 
 
-            var isWifiEnabled = WifiWizard.isWifiEnabled (
+            var isWifiEnabled = WifiWizard.isWifiEnabled(
               (isWifiEnabledResult) => {
                 // this.clOnScreen2 = "isWifiEnabled result: " + isWifiEnabledResult;
 
-                if ( isWifiEnabledResult ) {
+                if (isWifiEnabledResult) {
 
 
-                var wifiName = WifiWizard.getScanResults(
-                  (scanWiFiResults) => {
-                    // this.clOnScreen2 = "Have got scanWiFiResults";
-                    this.checkWiFiNames(scanWiFiResults);
+                  var wifiName = WifiWizard.getScanResults(
+                    (scanWiFiResults) => {
+                      // this.clOnScreen2 = "Have got scanWiFiResults";
+                      this.checkWiFiNames(scanWiFiResults);
 
 
-                  }, (errWiFiScan) => {
-                    // this.clOnScreen2 = "some error in scan of wifi SSID. See errLog";
-                    this.global.clOnScreen = this.global.msg5;
-                    this.global.saveErrorLog("getPhoneWiFiNameAndCheck()", "isWifiEnabled = False");
-                    this.isWiFiNameCorrect = false; // unrem to start wifi check
-                  }
-                )
+                    }, (errWiFiScan) => {
+                      // this.clOnScreen2 = "some error in scan of wifi SSID. See errLog";
+                      this.global.clOnScreen = this.global.msg5;
+                      this.isWiFiNameCorrect = false; // unrem to start wifi check
+                      this.global.saveErrorLog("getPhoneWiFiNameAndCheck()", "isWifiEnabled = False");
+
+                    }
+                  )
                 } else {
 
-
+                  // isWifiEnabledResult=false so stop get data from sensors
+                  // this.clOnScreen2 = "isWifiEnabledResult=false ";
+                  this.isWiFiNameCorrect = false;
 
                 }
 
@@ -118,8 +121,6 @@ export class ConnectivityService {
             );
 
 
-
-
           } else {
 
             // this.global.clOnScreen = 'WifiWizard not loaded';
@@ -130,6 +131,12 @@ export class ConnectivityService {
 
           }
         }
+      ).catch(
+        (err) => {
+
+          this.global.clOnScreen = this.global.msg4;
+          this.global.saveErrorLog("getPhoneWiFiNameAndCheck()", "this.platform.ready() err: " + err);
+        }
       );
     } else {
       this.global.clOnScreen = this.global.msg4;
@@ -137,23 +144,24 @@ export class ConnectivityService {
     }
 
 
-    // return true;
+    // this.clOnScreen2 = "Start scan for wifi SSID";
 
   }
 
   checkWiFiNames(phoneWifi) {
 
-
+    // this.clOnScreen2 = "isWiFiNameCorrect=" + this.isWiFiNameCorrect;
     // var phoenWIFiCut =  phoneWifi.slice(1,-1);
     // this.isWiFiNameCorrect = phoenWIFiCut == serverWiFi; // unrem to start wifi check
     var arrayScannedSSID = [];
-    var isWiFiNameCorrectPreviouse:boolean = this.isWiFiNameCorrect;
+    var isWiFiNameCorrectPreviouse: boolean = this.isWiFiNameCorrect;
 
 
     for (var n = 0; n < phoneWifi.length; n++) {
 
-      arrayScannedSSID.push (phoneWifi[n].SSID);
-      if ( phoneWifi[n].SSID == this.global.ServerWifiName) {
+      arrayScannedSSID.push(phoneWifi[n].SSID);
+      if (phoneWifi[n].SSID == this.global.ServerWifiName) {
+        // this.clOnScreen2 = "phoneWifi[n].SSID=" + phoneWifi[n].SSID;
         this.isWiFiNameCorrect = true;
         break;
       }
@@ -161,14 +169,8 @@ export class ConnectivityService {
 
     }
 
-    // this.global.clOnScreen = "isWiFiNameCorrect=" + this.isWiFiNameCorrect;
+    // this.global.clOnScreen = "isWiFiNameCorrectAfterCheck=" + this.isWiFiNameCorrect;
 
-    // if ( !this.isWiFiNameCorrect && isWiFiNameCorrectPreviouse == this.isWiFiNameCorrect) {
-    //   this.global.saveErrorLog("checkWiFiNames(phoneWifi)", "ServerWiFiName = " + this.global.ServerWifiName + ". Found WiFi list = " + arrayScannedSSID.toString().replace(",",";"));
-    // }
-
-    // this.global.saveErrorLog("wifiArray=" + JSON.stringify(phoneWifi));
-    // this.isWiFiNameCorrect = true;
 
   }
 
