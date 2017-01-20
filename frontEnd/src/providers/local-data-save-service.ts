@@ -23,6 +23,7 @@ export class LocalDataSaveService {
 
   // public appPropertyDirectory: string = "file:///storage/emulated/0/";
   public appPropertyFile = "TransporterProp.txt";
+  private clOnScreen7: any = "";
   // public appCSVDirectory: string = "file:///storage/emulated/0/";
   // public appCSVFile = "";
   // public appLogDirectory: string = "file:///storage/emulated/0/";
@@ -61,6 +62,7 @@ export class LocalDataSaveService {
     this.global.propertyObj.sessionId = this.global.sessionID;
     this.global.propertyObj.status = this.global.stateStatus;
     this.global.propertyObj.ServerWifiName = this.global.ServerWifiName;
+    this.global.propertyObj.isAllSensorAvailable = this.global.isAllSensorAvailable;
     // this.clOnScreen5 = "Saving to file.SessionID= " + this.global.propertyObj.sessionId;
     // JSON.stringify( this.global.propertyObj);
 
@@ -94,6 +96,11 @@ export class LocalDataSaveService {
 
             return this.global.propertyObj;
 
+
+          }
+        ).catch(
+          (err) => {
+            return "no file: " + JSON.stringify(err);
 
           }
         );
@@ -270,23 +277,13 @@ export class LocalDataSaveService {
 
                   this.serverService.sendDataToServer(preparedLogContent, "log");
 
-                  // this.clOnScreen5 = JSON.stringify(result);
-                  // this.saveErrorLog(JSON.stringify(result));
-
-                  // if (result) {
-                  //   return this.cleanLogFile();
-                  // } else {
-                  //   return "Error in file log";
-                  // }
-
-                  // return
 
                 }
               );
             }
           );
         }
-
+// this.global.clOnScreen = "indexOf("Error") == -1";
 
       }
     );

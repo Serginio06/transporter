@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Platform} from 'ionic-angular';
+import {Platform, AlertController, LoadingController} from 'ionic-angular';
 import {File} from 'ionic-native';
 // import { Http } from '@angular/http';
 // import 'rxjs/add/operator/map';
@@ -15,7 +15,11 @@ import {File} from 'ionic-native';
 @Injectable()
 export class Global {
 
-  // public gyrodata = [];
+  // ===== configuration variables ========
+  // public timeWiFiCheck: number = 30; // interval of time to check if wifi available in sec
+  // public timeLogWrite = 120; // interval of time to write log file in sec
+  // public buttonText: string = "Drive";
+  // public timeErrLogWrite = 30; // interval of time to write errLog file and send it to server in sec
   public stateStatus: string = '';
   public propertyObj: any = {};
   public sessionID: number = 0;
@@ -23,7 +27,7 @@ export class Global {
   public accelerometerSessionData: any = [];
   public geoLocationSessionData: any = [];
   public phoneUUID: string = "";
-  public errContent: string = "";
+  // public errContent: string = "";
   public appFilesDirectory: string = "file:///storage/emulated/0/";
   public appLogFile = "log.csv";
   public errorLogFile = "errorLog.csv";
@@ -31,9 +35,18 @@ export class Global {
   public logTitle = "UUID,timestamp,SessionID,Time,State" + "\n";
   public dataTitle = "UUID, sendTimestamp, SessionID,gyroTimestamp,gyroX(rad/s),gyroY(rad/s),gyroZ(rad/s), accelTimestamp,accelX,accelY,accelZ, geoTimestamp, Lat,Long,Speed(mph),TrueHeading,Alt(feet),Accuracy,AltAccuracy" + "\n";
   public errorLogFileTitle = "UUID,timestamp, errLocation, errMesage" + "\n";
-  public errLogContent:string;
+  public errLogContent: string = "";
   public ServerWifiName: string = "";
   public clOnScreen: any = "";
+  public clOnScreen8: any = "";
+  public clOnScreen9: any = "";
+  public clOnScreen10: any = "";
+  public isGyroscopeAvailable: boolean = false;
+  // public isAccelerometerAvailable: boolean = false;
+  public isGPSAvailable: boolean = false;
+  public loaderSpinner: any;
+  public isAllSensorAvailable: string = "noCheck";
+
 
   // ========= System messages =========
   public msg1 = "Your phone identificator is not registred. Please contact application administrator";
@@ -41,8 +54,10 @@ export class Global {
   public msg3 = "Err during data sending. See errorLog file";
   public msg4 = "Technical error. Please contact application administrator (log file included)";
   public msg5 = "Please turn on your Wi-Fi";
+  public generalSpinnerMsg = "Please wait...";
+  public spinnerSensorCheckMsg = "Checking sensors availability...";
 
-  constructor(public platform: Platform) {
+  constructor(public platform: Platform, public alertController: AlertController, public loadingController: LoadingController) {
     console.log('Hello Global Provider');
     this.propertyObj.sessionId = this.sessionID;
     this.propertyObj.status = this.stateStatus;
@@ -103,6 +118,10 @@ export class Global {
     return this.platform.ready().then(
       () => {
 
+         this.gyroscopeSessionData = [];
+         this.accelerometerSessionData = [];
+         this.geoLocationSessionData = [];
+
         return File.writeFile(
           this.appFilesDirectory,
           this.appCSVFile,
@@ -114,9 +133,11 @@ export class Global {
 
   }
 
-  saveErrorLog(errLocation: string, errMsg: string ): any {
+  saveErrorLog(errLocation: string, errMsg: string): any {
+    // this.clOnScreen = "saveErrorLog called: " + errLocation;
     this.errLogContent = "";
-    errMsg = errMsg.replace(",",";");
+    errMsg = errMsg.replace(",", ";");
+    errMsg = errMsg.replace(",", ";");
 
     this.getErrLogFromFile().then(
       (errFileContent) => {
@@ -147,8 +168,6 @@ export class Global {
     //
     // // var errorFile = "errorLog_" + currentTime + ".csv";
     // // var errorFile = "errorLog.csv";
-
-
 
 
   }
@@ -182,29 +201,60 @@ export class Global {
   globalCleanErrorFile(): any {
 
     // let logTitle =
+    // this.clOnScreen = "we are in globalCleanErrorFile()";
 
     return this.platform.ready().then(
       () => {
-
+        this.errLogContent = "";
         return File.writeFile(
           this.appFilesDirectory,
           this.errorLogFile,
           this.errorLogFileTitle,
           {replace: true}
         );
+
       }
     );
 
+
   }
 
-  changeEmptyValueOnNull(value:any):string {
-    if ( value === 0 || value === null || value === '' || value === undefined  ) {
-        return "null";
+  changeEmptyValueOnNull(value: any): string {
+    if (value === 0 || value === null || value === '' || value === undefined) {
+      return "null";
     } else {
       return value;
     }
 
 
+  }
+
+
+  public presentAlert(title, subTitle, button: string) {
+
+    let alert = this.alertController.create({
+      title: title,
+      subTitle: subTitle,
+      buttons: [button]
+    });
+    alert.present();
+  }
+
+
+  presentLoadingSpinner(message: string) {
+
+    let spinMessage: string = message || this.generalSpinnerMsg;
+
+    this.loaderSpinner = this.loadingController.create({
+      spinner: 'dots',
+      content: spinMessage,
+      // duration: 3000
+    });
+    this.loaderSpinner.present();
+  }
+
+  dismissLoadingSpinner() {
+    this.loaderSpinner.dismiss();
   }
 
 

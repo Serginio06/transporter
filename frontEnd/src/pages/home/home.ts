@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {NavController, Alert, Platform} from 'ionic-angular';
+import {NavController, Platform} from 'ionic-angular';
 
 // import {Network} from 'ionic-native';
 import {ConnectivityService} from '../../providers/connectivity-service';
@@ -9,6 +9,7 @@ import {GeoLocationService} from '../../providers/geo-location-service'
 import {ServerService} from '../../providers/server-service';
 import {LocalDataSaveService} from '../../providers/local-data-save-service'
 import {Global} from '../../providers/global'
+import 'rxjs/Rx';
 // import {BackgroundMode} from 'ionic-native';
 
 // declare var cordova:any;
@@ -24,20 +25,22 @@ declare var cordova: any;
 })
 export class HomePage {
   // ===== configuration variables ========
-  private timeWiFiCheck: number = 15; // interval of time to check if wifi available in sec
-  private timeLogWrite = 120; // interval of time to write log file in sec
+  public timeWiFiCheck: number = 30; // interval of time to check if wifi available in sec
+  public timeLogWrite = 120; // interval of time to write log file in sec
+  public buttonText: string = "Drive";
+  public timeErrLogWrite = 35; // interval of time to send errLog to server in sec
 
   //=============
   // private stateStatus: string = "";
   public stateName: string = "";
-  public buttonText: string = "Drive";
   public isServiceStart: boolean = false;
   // private startOnlineCheck: boolean = false;
-  private logSaveCounter: number = 0; // write log every 5 sec
-  private wifiCheckCounter: number = this.timeWiFiCheck - 1; // check wifi name every 30 sec
-  public clOnScreen3: any = "";
-  // public clOnScreen: any = "";
-  public isStorageFileExist: string;
+  private logSaveCounter: number = 0; // counter before save log
+  public wifiCheckCounter: number = this.timeWiFiCheck - 1; // counter before save data
+  private errLogCheckCounter: number = 0; // counter before save data
+  private sensorCheckButton: string = "";
+
+  private clOnScreen3: any = "";
   public stautusCheckGeneralCounter: number = 0;
 
 
@@ -49,77 +52,119 @@ export class HomePage {
   }
 
 
-  private onInit() {
-
+  public onInit() {
 
     this.localDataSaveService.getPropertyObjFromFile().then(data => {
-        // this.clOnScreen3 = JSON.stringify(this.global.propertyObj);
-        this.global.sessionID = this.global.propertyObj.sessionId;
-        this.global.ServerWifiName = this.global.propertyObj.ServerWifiName;
 
-      if (!this.global.ServerWifiName) {this.checkForWiFiNameRegistred();
-      } else {
-        if (this.global.propertyObj.status) {
-          this.startDrive();
+        this.global.sessionID = this.global.propertyObj.sessionId || 0;
+        this.global.ServerWifiName = this.global.propertyObj.ServerWifiName || "";
+        this.global.isAllSensorAvailable = this.global.propertyObj.isAllSensorAvailable || "empty";
+
+        if (this.global.isAllSensorAvailable == "empty" || this.global.isAllSensorAvailable == "") {
+          this.checkSensorsOnInit();
+        } else {
+          this.checkDataFromPropertyFile();
         }
-      }
 
       }
     );
+  }
+
+  private checkDataFromPropertyFile() {
+
+    if (!this.global.ServerWifiName) {
+      this.checkForWiFiNameRegistred();
+    } else {
+      if (this.global.propertyObj.status) {
+        this.startDrive();
+      }
+    }
+
+  }
+
+  private checkSensorsOnInit() {
 
 
+    this.checkSensors().then(
+      (result) => {
+
+        this.global.dismissLoadingSpinner();
+
+        if (result.code == 1) {
+
+          // this.global.presentAlert("Check sensors", "All sensors found", "OK");
+          this.sensorCheckButton = "";
+          this.checkDataFromPropertyFile();
+
+        } else if (result.code == 2) {
+          this.global.presentAlert("Check sensors", "No needed sensors. Please uninstall application", "Exit");
+        } else if (result.code == 3 && this.sensorCheckButton == "") {
+          this.global.presentAlert("Check sensors", "GPS not found. Please make sure that GPS is on and application has permission to use it", "OK");
+          this.sensorCheckButton = "Check sensors again";
+        } else if (result.code == 3 && this.sensorCheckButton != "") {
+          this.global.presentAlert("Check sensors", "No needed sensors. Please uninstall application", "Exit");
+          this.sensorCheckButton = "";
+
+        }
+      }
+    )
   }
 
 
   public startDrive(): void {
     this.global.clOnScreen = "";
+    // this.global.clOnScreen = "start of startDrive()";
 
-    if (this.global.ServerWifiName) {
+    if (this.global.isAllSensorAvailable != "true") {
+      // this.global.clOnScreen = "check for sensors availability startDrive()";
+      this.global.saveErrorLog("startDrive()", "We go to startDrive without sensors check for some reason");
+      this.checkSensorsOnInit();
 
+    } else {
+      // this.global.clOnScreen = "serverWiFIName check start";
 
+      if (this.global.ServerWifiName) {
 
-      // ========= Start network connection checking
-      // this.startOnlineCheck ? this.startOnlineCheck = false : this.startOnlineCheck = true;
+        // ========= Start network connection checking
+        // this.clOnScreen3 = "this.isServiceStart=" + this.isServiceStart;
 
+        if (!this.isServiceStart) {
+          this.buttonText = "Stop";
 
-      if (!this.isServiceStart) {
-        this.buttonText = "Stop";
+          this.isServiceStart = !this.isServiceStart;
+          this.startAutoAppLaunch();
+          this.checkOnlineStatus();
 
-        this.isServiceStart = !this.isServiceStart;
-        this.startAutoAppLaunch();
-        this.checkOnlineStatus();
+        } else {
+          this.buttonText = "Drive";
+          this.isServiceStart = !this.isServiceStart;
+          this.stopAutoAppLaunch();
 
+        }
       } else {
-        this.buttonText = "Drive";
-        this.isServiceStart = !this.isServiceStart;
-        this.stopAutoAppLaunch();
+
+        // There is NO this.global.ServerWifiName
+        this.global.clOnScreen = this.global.msg2;
+        this.global.propertyObj.status = "Wait";
+        this.checkForWiFiNameRegistred();
 
       }
-    } else {
-
-      // There is NO this.global.ServerWifiName
-      this.global.clOnScreen = this.global.msg2;
-      this.global.propertyObj.status = "Wait";
-      this.checkForWiFiNameRegistred();
-
     }
-
   }
 
-  checkOnlineStatus() {
+  public checkOnlineStatus() {
     this.stautusCheckGeneralCounter++;
-
+    // this.global.clOnScreen = "staus check: " + this.stautusCheckGeneralCounter;
+    // this.clOnScreen3 = "GeneralCounter=" + this.stautusCheckGeneralCounter;
 
     setTimeout(() => {
 
 
       if (this.isServiceStart) {
 
-
         // =============== start collect log even if no right wifi connection
-
         if (this.logSaveCounter == this.timeLogWrite) {
-          // this.clOnScreen =
+          // this.global.clOnScreen8 = "savelog file";
           this.localDataSaveService.saveLog();
           // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;
@@ -127,36 +172,40 @@ export class HomePage {
           this.logSaveCounter++;
         }
 
+        // ================= countdown to send errLog to server =============
+        if (this.errLogCheckCounter == this.timeErrLogWrite) {
+          // this.clOnScreen =
+          // this.global.clOnScreen8 = "saveErrLog file";
+
+          this.global.errLogContent ? this.serverService.sendErrLogToServer(this.global.errLogContent) : "";
+
+          this.errLogCheckCounter = 0;
+        } else {
+          this.errLogCheckCounter++;
+        }
+
         // ============= is it time to check wifi again
         if (this.wifiCheckCounter == this.timeWiFiCheck) {
-
-          // console.log("wifiCheckCounter reach " + this.timeWiFiCheck);
+          // this.global.clOnScreen8 = "checking wifi";
           this.wifiCheckCounter = 0;
-          // this.connectivityService.getPhoneWiFiNameAndCheck(this.serverService.getServerWifiName());
           this.connectivityService.getPhoneWiFiNameAndCheck();
-          // this.checkStatus();
 
         } else {
           this.wifiCheckCounter++;
-          var remainingTimeWiFiCheck = this.timeWiFiCheck - this.wifiCheckCounter;
-          // this.clOnScreen = 'WiFi check in ' + remainingTimeWiFiCheck + ' sec.ID= '+ this.global.sessionID;
-
-          // cordova.plugins.backgroundMode.configure({
-          //   text: 'WiFi check in ' + remainingTimeWiFiCheck + ' sec',
-          // });
+          this.global.clOnScreen = "Not checking wifi";
         }
 
         // start wifi check
         if (this.connectivityService.isWiFiNameCorrect) {
-
+          // this.global.clOnScreen = "isWiFiNameCorrect" + this.connectivityService.isWiFiNameCorrect;
           // start data collection and change status to Record
-          this.changeCollectionState("Record");
+          this.changeState("Record");
 
 
         } else {
 
-          console.log("Wait for right connection");
-          this.changeCollectionState("Wait");
+          // console.log("Wait for right connection");
+          this.changeState("Wait");
 
         }
 
@@ -166,7 +215,7 @@ export class HomePage {
       } else {
 
         // service stopped. Stop save log
-        this.changeCollectionState("");
+        this.changeState("");
         this.logSaveCounter = 0;
         this.wifiCheckCounter = 0;
 
@@ -180,7 +229,7 @@ export class HomePage {
   }
 
 
-  private changeCollectionState(x: string): void {
+  private changeState(x: string): void {
     if (x === undefined) {
       this.stateName = "";
       this.global.stateStatus = "";
@@ -191,8 +240,8 @@ export class HomePage {
             if (this.global.stateStatus == "Record") this.stopDataCollection();
             this.stateName = "Ожидание";
             this.global.stateStatus = "Wait";
-            this.localDataSaveService.saveAppPropertyToFile();
             this.changeStatusInBackGround();
+            this.localDataSaveService.saveAppPropertyToFile();
             break;
           case 'Record':
             this.stateName = "Запись";
@@ -203,6 +252,7 @@ export class HomePage {
             this.startDataCollection();
             break;
           default:
+            // this.global.clOnScreen = "we are in default changeState: " + x;
             if (this.global.stateStatus == "Record") this.stopDataCollection();
             this.stateName = "";
             this.global.stateStatus = "";
@@ -214,7 +264,7 @@ export class HomePage {
 
   }
 
-  startDataCollection() {
+  private startDataCollection() {
 
     this.platform.ready().then(
       () => {
@@ -242,56 +292,69 @@ export class HomePage {
   }
 
   private startAutoAppLaunch() {
+    var defaultBackgroundStateName = "Сбор данных";
 
-    cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
+    if (this.stateName != "") {
+      defaultBackgroundStateName = this.stateName;
+    } else if (this.global.stateStatus != "" ){
+      defaultBackgroundStateName = "this.global.stateStatus: " + this.global.stateStatus ;
+    } else {
+      defaultBackgroundStateName = "Сбор данных";
+    }
+
+
     this.platform.ready().then(
       () => {
+        cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
         cordova.plugins.backgroundMode.setDefaults({
-          text: 'Сбор данных' + this.stateName,
-          title: 'Transporter',
+          text: defaultBackgroundStateName,
+          title: 'CHERRY',
+          icon: "icon",
+          ticker: defaultBackgroundStateName,
 
           resume: true,
         });
 
         cordova.plugins.backgroundMode.enable();
 
-        // cordova.plugins.backgroundMode.onactivate = function () {
-        //     cordova.plugins.backgroundMode.configure({
-        //       text:'WiFi check in ' + + ' sec',
-        //     });
-        //
-        //   // setTimeout(function () {
-        //   //   // Modify the currently displayed notification
-        //   //   cordova.plugins.backgroundMode.configure({
-        //   //     text:'In background for more than 5s now.'
-        //   //   });
-        //   // }, 5000);
-        // };
       }
     );
   }
 
-  changeStatusInBackGround() {
+  private changeStatusInBackGround() {
+    // this.clOnScreen3 = "changeStatusInBackGround= " + this.stateName;
 
-    cordova.plugins.backgroundMode.configure({
-      text: 'Статус - ' + this.stateName,
-    });
+    this.platform.ready().then(
+      () => {
+        cordova.plugins.backgroundMode.configure({
+          text: 'Статус - ' + this.stateName,
+          ticker: this.stateName,
+
+        });
+      }
+    );
 
   }
 
   private stopAutoAppLaunch() {
-    cordova.plugins.autoStart.disable();
-    cordova.plugins.backgroundMode.disable();
+
+    this.platform.ready().then(
+      () => {
+        cordova.plugins.autoStart.disable();
+        cordova.plugins.backgroundMode.disable();
+
+      }
+    );
   }
 
   private checkForWiFiNameRegistred(): any {
 
     // this.clOnScreen = "in checkForWiFiNameRegistred()";
     if (!this.global.ServerWifiName) {
-       this.serverService.getServerWifiName().then(
+      this.serverService.getServerWifiName().then(
         (result) => {
           if (result) {
-            // this.clOnScreen = "checkForWiFiNameRegistred()=" + result;
+            // this.clOnScreen = "checkForWiFiNameRegistred()=" + isGyroscopeAvailable;
             this.localDataSaveService.saveAppPropertyToFile();
 
             // check if previouse session was interupted
@@ -312,15 +375,42 @@ export class HomePage {
 
   // ======= file storage check ==============
 
-  gyroscopeCheck() {
+  private checkSensors(): any {
 
 
-    this.gyroscopeService.checkGyroscopeAvailability().then(
-      data => {
-        this.clOnScreen3 = data;
+    this.global.presentLoadingSpinner(this.global.spinnerSensorCheckMsg);
+
+    return new Promise(resolve => {
+
+        this.gyroscopeService.checkGyroscopeAvailability();
+        this.geoLocationService.checkGPSAvailability();
+
+        setTimeout(function () {
+            //
+
+
+            if (this.global.isGyroscopeAvailable && this.global.isGPSAvailable) {
+              // this.global.presentAlert("Check sensors", "All sensors found", "OK");
+              this.global.isAllSensorAvailable = "true";
+              resolve({code: 1, status: "All needed sensors have been found"});
+            } else if (!this.global.isGyroscopeAvailable) {
+              // this.global.presentAlert("Check sensors", "Gyroscope not found", "OK");
+              this.global.isAllSensorAvailable = "false";
+              resolve({code: 2, status: "Gyroscope has not been found"});
+            } else if (!this.global.isGPSAvailable) {
+              // this.global.presentAlert("Check sensors", "GPS not found", "OK");
+              this.global.isAllSensorAvailable = "false";
+
+              resolve({code: 3, status: "GPS has not been found or it is off"});
+            }
+
+            // this.localDataSaveService.saveAppPropertyToFile();
+          }.bind(this)
+
+          , 3000);
+
       }
     );
-    // tJSON.stringify(this.gyroscopeService.checkGyroscopeAvailability());
 
   }
 

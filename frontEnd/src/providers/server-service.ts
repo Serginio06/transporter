@@ -8,6 +8,8 @@ import {HTTP} from 'ionic-native';
 import 'rxjs/add/operator/map';
 import {ConnectivityService} from '../providers/connectivity-service';
 import {Device} from 'ionic-native';
+import {tryCatch} from "rxjs/util/tryCatch";
+// import 'rxjs/add/operator/catch';
 
 
 /*
@@ -38,190 +40,193 @@ export class ServerService {
 
   getServerWifiName(): any {
 
-    if (this.connectivityService.isOnline()) {
+    try {
+      if (this.connectivityService.isOnline()) {
 
-      if (!this.global.ServerWifiName) {
+        if (!this.global.ServerWifiName) {
 
-        // this.clOnScreen4 = "IF positive";
-        // here should be code do get WiFi name from Server based on UUID. Siv UUID=d93bed755ea75489
-        var req: any;
-        var url: string = 'https://cherry2016.herokuapp.com/users/' + this.global.phoneUUID;
-        let headers = JSON.parse('{"Content-Type": "application/json"}');
+          var req: any;
+          var url: string = 'https://cherry2016.herokuapp.com/users/' + this.global.phoneUUID;
+          let headers = JSON.parse('{"Content-Type": "application/json"}');
 
-        // this.global.saveErrorLog("url= " + url);
+          return HTTP.get(url, {}, headers)
+            .then(data => {
 
-        return HTTP.get(url, {}, headers)
-          .then(data => {
+              if (data.data != "") {
+                let cleanedData = JSON.stringify(data.data).replace(/\\/g, "");
+                cleanedData = cleanedData.replace(/\n/g, "");
+                cleanedData = cleanedData.slice(0, -1);
+                cleanedData = cleanedData.slice(1);
 
-            // this.global.saveErrorLog("data= " + data);
+                let dataDataObj: any = JSON.parse(cleanedData);
 
-            if (data.data != "") {
-              let cleanedData = JSON.stringify(data.data).replace(/\\/g, "");
-              cleanedData = cleanedData.replace(/\n/g, "");
-              cleanedData = cleanedData.slice(0, -1);
-              cleanedData = cleanedData.slice(1);
+                this.global.ServerWifiName = dataDataObj.WifiName;
 
-              let dataDataObj: any = JSON.parse(cleanedData);
-              // this.global.saveErrorLog("data= " + JSON.stringify(data));
-              // this.global.saveErrorLog("dataDataObj= " + JSON.stringify(dataDataObj));
-              // this.clOnScreen4 = "getWiN= " + dataDataObj.WifiName;
+                return this.global.ServerWifiName;
+              } else {
+                // this.global.clOnScreen = "getServerWifiName()=" + this.global.msg1;
+                return "";
+              }
+
+            })
+            .catch(error => {
+              this.global.clOnScreen = this.global.msg4;
+              this.global.saveErrorLog("getServerWifiName()", "Err during data sending: " + JSON.stringify(error));
+            });
+
+          // this.wifiName = 'Lillehammer';
+        } else {
+          return this.global.ServerWifiName;
+        }
 
 
-              this.global.ServerWifiName = dataDataObj.WifiName;
-              // this.clOnScreen4 = this.global.ServerWifiName;
-              return this.global.ServerWifiName;
-            } else {
-              this.global.clOnScreen = "getServerWifiName()=" + this.global.msg1;
-              return "";
-            }
-            // console.log(data.status);
-            // console.log(data.data); // data received by server
-            // console.log(data.headers);
-
-          })
-          .catch(error => {
-
-            // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
-            // this.clOnScreen4 = "Err during data sending. See errorLog file";
-            this.global.clOnScreen = this.global.msg4;
-            this.global.saveErrorLog("getServerWifiName()", "Err during data sending: " + JSON.stringify(error));
-            // console.log(error);
-            // console.log(error.status);
-            // console.log(error.error); // error message as string
-            // console.log(error.headers);
-            // return error.status;
-
-          });
-
-        // this.wifiName = 'Lillehammer';
       } else {
-        // this.clOnScreen4 = "IF negative";
-        return this.global.ServerWifiName;
-        //set wifiName by default = 'Lillehammer'
-        // this.wifiName = 'Lillehammer';
+        // this.clOnScreen4 = "Phone is offline. Check your internet connection";
+        this.global.saveErrorLog("getServerWifiName()", "Phone is offline. Try send data later");
       }
-
-
-    } else {
-      this.clOnScreen4 = "Phone is offline. Check your internet connection"
-      this.global.saveErrorLog("getServerWifiName()", "Phone is offline. Try send data later");
     }
-
-
-    // this.global.ServerWifiName = "wifi from server";
-
-
+    catch (err) {
+      // this.global.clOnScreen9 = "Err in geting wifiname";
+      this.global.saveErrorLog("getServerWifiName()", "try-catch err: " + err);
+    }
   }
 
 
   sendDataToServer(dataToSend: string, dataType: string) {
+    try {
 
+      if (this.connectivityService.isOnline()) {
+
+
+        let headers = JSON.parse('{"Content-Type": "application/json"}');
+
+        if (dataType != "data" && dataType != "log") {
+          // this.clOnScreen4 = "Error: dataType is wrong" + dataType;
+          // this.global.errContent = "Error: dataType is wrong" + dataType;
+          this.global.saveErrorLog("sendDataToServer()", "Error: dataType is wrong" + dataType)
+        } else {
+
+          let SERVER_URL = 'https://cherry2016.herokuapp.com/data/' + dataType;
+
+          let body = this.transformCSVInJson(dataToSend);
+
+          HTTP.post(SERVER_URL, body, headers)
+            .then(data => {
+
+              if (dataType == "log") {
+                this.global.globalCleanLogFile();
+              } else if (dataType == "data") {
+                this.global.globalCleanDataFile();
+              }
+
+              // console.log(data.status);
+              // console.log(data.data); // data received by server
+              // console.log(data.headers);
+            })
+            .catch(error => {
+
+              // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
+              // this.global.clOnScreen = this.global.msg3;
+              this.global.saveErrorLog("sendDataToServer()", "Err during data sending: " + JSON.stringify(error));
+              // console.log(error);
+              // console.log(error.status);
+              // console.log(error.error); // error message as string
+              // console.log(error.headers);
+              // return error.status;
+
+            });
+
+          this.sendErrLogToServer(this.global.errLogContent);
+
+
+        }
+
+      } else {
+        // this.clOnScreen4 = "Phone is offline. Try send data later";
+        // this.global.saveErrorLog("sendDataToServer()", "Phone is offline. Try send data later");
+      }
+
+    }
+    catch (err) {
+
+      // this.global.clOnScreen9 = "err in send data/log to server";
+      this.global.saveErrorLog("sendDataToServer()", "try-catch err: " + err);
+    }
+  }
+
+  sendErrLogToServer(errDataToSend) {
+
+    // this.global.clOnScreen = "errDTS= " + errDataToSend;
+    // this.global.saveErrorLog("sendErrLogToServer","errDTS= " + errDataToSend );
     if (this.connectivityService.isOnline()) {
+      if (errDataToSend === undefined) {
+
+        // this.global.clOnScreen = "errDataToSend === undefined";
 
 
-      let headers = JSON.parse('{"Content-Type": "application/json"}');
-
-      if (dataType != "data" && dataType != "log") {
-        this.clOnScreen4 = "Error: dataType is wrong" + dataType;
-        this.global.errContent = "Error: dataType is wrong" + dataType;
       } else {
 
-        // this.clOnScreen4 = "in else";
-        let SERVER_URL = 'https://cherry2016.herokuapp.com/data/' + dataType;
-        // let SERVER_URL = 'https://cherry2016.herokuapp.com/data/log';
+        // this.global.clOnScreen = "errDataToSend !== undefined: " + errDataToSend;
 
-        dataToSend = dataToSend.replace(/\n/g, "\\n");
-        dataToSend = dataToSend.slice(0, -2);
-        // this.global.errContent = dataToSend;
+        let headers = JSON.parse('{"Content-Type": "application/json"}');
 
-        // this.global.saveErrorLog(dataToSend);
-
-        var body = JSON.parse('{"data":"' + dataToSend + '"}');
-
-        // this.clOnScreen4 = "b: " + body;
-
-        // HTTP.get('https://cherry2016.herokuapp.com/', {}, {})
-
-        HTTP.post(SERVER_URL, body, headers)
-          .then(data => {
-
-            if (dataType == "log") {
-              this.global.globalCleanLogFile();
-            } else if (dataType == "data") {
-              this.global.globalCleanDataFile();
-            }
-
-            // console.log(data.status);
-            // console.log(data.data); // data received by server
-            // console.log(data.headers);
-          })
-          .catch(error => {
-
-            // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
-            this.global.clOnScreen = this.global.msg3;
-            this.global.saveErrorLog("sendDataToServer()", "Err during data sending: " + JSON.stringify(error));
-            // console.log(error);
-            // console.log(error.status);
-            // console.log(error.error); // error message as string
-            // console.log(error.headers);
-            // return error.status;
-
-          });
-
-        // Send error Log to server and clean local file
+        // ========= Send error Log to server and clean local file
         let errSERVER_URL = 'https://cherry2016.herokuapp.com/data/err';
-        // let body2 = this.global.errLogContent;
 
+        var parseResult: boolean = true;
 
-        var errDataToSend = this.global.errLogContent
-        errDataToSend = errDataToSend.replace(/\n/g, "\\n");
-        errDataToSend = errDataToSend.slice(0, -2);
-        let body2 = JSON.parse('{"data":"' + errDataToSend +'"}');
+        try {
+          var body = this.transformCSVInJson(errDataToSend);
+        }
+        catch (err) {
+          parseResult = false;
+          errDataToSend = "";
+          // var body = this.transformCSVInJson();
 
-        HTTP.post(errSERVER_URL, body2, headers)
-          .then(data => {
+          this.global.saveErrorLog("sendErrorDataToServer()", "parse body of errLog - catch_err: " + JSON.stringify(err.message) + "errDataToSend: " + errDataToSend);
 
-            // if (dataType == "log") {
-            //   this.global.globalCleanLogFile();
-            // } else if (dataType == "data") {
-            //   this.global.globalCleanDataFile();
-            // }
+        }
 
-            this.global.globalCleanErrorFile();
+        // this.global.clOnScreen = "body= " + body;
 
-            // console.log(data.status);
-            // console.log(data.data); // data received by server
-            // console.log(data.headers);
-          })
-          .catch(error => {
+        if (parseResult) {
+          HTTP.post(errSERVER_URL, body, headers)
+            .then(data => {
 
-            // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
-            this.global.clOnScreen = this.global.msg3;
-            this.global.saveErrorLog("sendErrorDataToServer()", "Err during data sending: " + JSON.stringify(error));
-            // console.log(error);
-            // console.log(error.status);
-            // console.log(error.error); // error message as string
-            // console.log(error.headers);
-            // return error.status;
+              this.global.globalCleanErrorFile();
 
-          });
+            })
+            .catch(error => {
+
+              this.global.saveErrorLog("sendErrorDataToServer()", "Err during data sending: " + JSON.stringify(error.error));
+
+            });
+        }
 
 
       }
-
     } else {
-      // this.clOnScreen4 = "Phone is offline. Try send data later";
-      this.global.saveErrorLog("sendDataToServer()", "Phone is offline. Try send data later");
+
+
     }
+  }
+
+
+  transformCSVInJson(data: string): any {
+    let Json: any = data;
+
+    Json = Json.replace(/\n/g, "\\n");
+    Json = Json.replace(/"/g, "|");
+    Json = Json.replace(/'/g, "|");
+    Json = Json.slice(0, -2);
+
+    Json = JSON.parse('{"data":"' + Json + '"}');
+    return Json;
+
   }
 
   getPhoneUUID(): string {
 
-    // here shoudl be code to get phone's IMEI
-    // this.clOnScreen4 = "we are in getPhoneUUID ";
-
-    // console.log('Device UUID is: ' + Device.uuid);
-    // this.clOnScreen4 ="UUID= " + Device.uuid;
     return Device.uuid;
   }
 
