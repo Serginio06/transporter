@@ -173,7 +173,7 @@ export class ServerService {
         // let body2 = this.global.errLogContent;
 
 
-        var errDataToSend = this.global.errLogContent
+        var errDataToSend = this.global.errLogContent;
         errDataToSend = errDataToSend.replace(/\n/g, "\\n");
         errDataToSend = errDataToSend.slice(0, -2);
         let body2 = JSON.parse('{"data":"' + errDataToSend +'"}');

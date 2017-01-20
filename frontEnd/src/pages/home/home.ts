@@ -25,10 +25,10 @@ declare var cordova: any;
 export class HomePage {
   // ===== configuration variables ========
   private timeWiFiCheck: number = 15; // interval of time to check if wifi available in sec
-  private timeLogWrite = 120; // interval of time to write log file in sec
+  private timeLogWrite = 20; // interval of time to write log file in sec
 
   //=============
-  // private stateStatus: string = "";
+  // private stateStatus: string = "";s
   public stateName: string = "";
   public buttonText: string = "Drive";
   public isServiceStart: boolean = false;
@@ -109,7 +109,7 @@ export class HomePage {
   checkOnlineStatus() {
     this.stautusCheckGeneralCounter++;
 
-
+    this.global.clOnScreen8 = "GeneralCounter= " + this.stautusCheckGeneralCounter;
     setTimeout(() => {
 
 
@@ -119,7 +119,7 @@ export class HomePage {
         // =============== start collect log even if no right wifi connection
 
         if (this.logSaveCounter == this.timeLogWrite) {
-          // this.clOnScreen =
+          this.global.clOnScreen9 = "saveLog + counter=" + this.stautusCheckGeneralCounter;
           this.localDataSaveService.saveLog();
           // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;

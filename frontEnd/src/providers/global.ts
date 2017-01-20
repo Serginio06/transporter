@@ -34,6 +34,9 @@ export class Global {
   public errLogContent:string;
   public ServerWifiName: string = "";
   public clOnScreen: any = "";
+  public clOnScreen8: any = "";
+  public clOnScreen9: any = "";
+  public clOnScreen10: any = "";
 
   // ========= System messages =========
   public msg1 = "Your phone identificator is not registred. Please contact application administrator";
