@@ -136,7 +136,7 @@ export class ServerService {
 
             });
 
-          this.sendErrLogToServer(this.global.errLogContent);
+          // this.sendErrLogToServer(this.global.errLogContent);
 
 
         }
@@ -175,12 +175,6 @@ export class ServerService {
 
         var parseResult: boolean = true;
 
-// <<<<<<< HEAD
-//         // var errDataToSend = this.global.errLogContent;
-//         errDataToSend = errDataToSend.replace(/\n/g, "\\n");
-//         errDataToSend = errDataToSend.slice(0, -2);
-//         let body2 = JSON.parse('{"data":"' + errDataToSend +'"}');
-// =======
         try {
           var body = this.transformCSVInJson(errDataToSend);
         }
@@ -188,7 +182,7 @@ export class ServerService {
           parseResult = false;
           errDataToSend = "";
           // var body = this.transformCSVInJson();
-// >>>>>>> ver031
+
 
           this.global.saveErrorLog("sendErrorDataToServer()", "parse body of errLog - catch_err: " + JSON.stringify(err.message) + "errDataToSend: " + errDataToSend);
 

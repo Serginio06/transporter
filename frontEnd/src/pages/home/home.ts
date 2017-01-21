@@ -16,6 +16,7 @@ import 'rxjs/Rx';
 
 // declare var window: any;
 declare var cordova: any;
+declare var window:any;
 // // declare var Connection: any;
 
 
@@ -26,10 +27,10 @@ declare var cordova: any;
 export class HomePage {
   // ===== configuration variables ========
 
-  public timeWiFiCheck: number = 30; // interval of time to check if wifi available in sec
-  public timeLogWrite = 20; // interval of time to write log file in sec
+  public timeWiFiCheck: number = 15; // interval of time to check if wifi available in sec
+  public timeLogWrite = 10; // interval of time to write log file in sec
   public buttonText: string = "Drive";
-  public timeErrLogWrite = 35; // interval of time to send errLog to server in sec
+  public timeErrLogWrite = 90; // interval of time to send errLog to server in sec
 
 
   //=============
@@ -106,7 +107,6 @@ export class HomePage {
         } else if (result.code == 3 && this.sensorCheckButton != "") {
           this.global.presentAlert("Check sensors", "No needed sensors. Please uninstall application", "Exit");
           this.sensorCheckButton = "";
-
         }
       }
     )
@@ -156,14 +156,9 @@ export class HomePage {
 
   public checkOnlineStatus() {
     this.stautusCheckGeneralCounter++;
-<<<<<<< HEAD
 
     this.global.clOnScreen8 = "GeneralCounter= " + this.stautusCheckGeneralCounter;
-=======
-    // this.global.clOnScreen = "staus check: " + this.stautusCheckGeneralCounter;
-    // this.clOnScreen3 = "GeneralCounter=" + this.stautusCheckGeneralCounter;
 
->>>>>>> ver031
     setTimeout(() => {
 
 
@@ -171,11 +166,8 @@ export class HomePage {
 
         // =============== start collect log even if no right wifi connection
         if (this.logSaveCounter == this.timeLogWrite) {
-<<<<<<< HEAD
+
           this.global.clOnScreen9 = "saveLog + counter=" + this.stautusCheckGeneralCounter;
-=======
-          // this.global.clOnScreen8 = "savelog file";
->>>>>>> ver031
           this.localDataSaveService.saveLog();
           // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;
@@ -184,26 +176,26 @@ export class HomePage {
         }
 
         // ================= countdown to send errLog to server =============
-        if (this.errLogCheckCounter == this.timeErrLogWrite) {
-          // this.clOnScreen =
-          // this.global.clOnScreen8 = "saveErrLog file";
-
-          this.global.errLogContent ? this.serverService.sendErrLogToServer(this.global.errLogContent) : "";
-
-          this.errLogCheckCounter = 0;
-        } else {
-          this.errLogCheckCounter++;
-        }
-
+        // if (this.errLogCheckCounter == this.timeErrLogWrite) {
+        //   // this.clOnScreen =
+        //   this.global.clOnScreen10 = "saveErrLog file=" + this.global.errLogContent;
+        //
+        //   this.global.errLogContent ? this.serverService.sendErrLogToServer(this.global.errLogContent) : "";
+        //
+        //   this.errLogCheckCounter = 0;
+        // } else {
+        //   this.errLogCheckCounter++;
+        // }
+        this.global.clOnScreen10 = "wifiCheckCounter= " + this.wifiCheckCounter;
         // ============= is it time to check wifi again
         if (this.wifiCheckCounter == this.timeWiFiCheck) {
-          // this.global.clOnScreen8 = "checking wifi";
+          this.global.clOnScreen10 = "checking wifi + " + this.stautusCheckGeneralCounter;
           this.wifiCheckCounter = 0;
           this.connectivityService.getPhoneWiFiNameAndCheck();
 
         } else {
           this.wifiCheckCounter++;
-          this.global.clOnScreen = "Not checking wifi";
+          this.global.clOnScreen10 = "Not checking wifi";
         }
 
         // start wifi check
@@ -322,11 +314,32 @@ export class HomePage {
           title: 'CHERRY',
           icon: "icon",
           ticker: defaultBackgroundStateName,
-
+          isPublic: true,
           resume: true,
         });
 
-        cordova.plugins.backgroundMode.enable();
+        // cordova.plugins.backgroundMode.enable();
+
+        if( this.platform.is('android') ){
+          cordova.plugins.backgroundMode.enable();
+
+          window.powerManagement.dim(function() {
+            // console.log('Wakelock acquired');
+            this.global.saveErrorLog("startAutoAppLaunch","Wakelock acquired" );
+          }, function() {
+            // console.log('Failed to acquire wakelock');
+            this.global.saveErrorLog("startAutoAppLaunch","Failed to acquire wakelock" );
+          });
+          window.powerManagement.setReleaseOnPause(false, function() {
+            // console.log('setReleaseOnPause successfully');
+            this.global.saveErrorLog("startAutoAppLaunch","setReleaseOnPause successfully" );
+          }, function() {
+            // console.log('Failed to set');
+            this.global.saveErrorLog("startAutoAppLaunch","Failed to set" );
+          });
+
+        }
+
 
       }
     );

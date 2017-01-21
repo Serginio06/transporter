@@ -275,7 +275,7 @@ export class LocalDataSaveService {
               ).then(
                 (Result) => {
 
-                  this.serverService.sendDataToServer(preparedLogContent, "log");
+                  // this.serverService.sendDataToServer(preparedLogContent, "log");
 
 
                 }
