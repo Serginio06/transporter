@@ -156,6 +156,10 @@ export class Global {
         );
 
 
+      }, (err) => {
+        this.clOnScreen9 = "err in errLog file write";
+
+
       }
     );
 

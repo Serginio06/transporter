@@ -93,15 +93,17 @@ export class HomePage {
 
         this.global.dismissLoadingSpinner();
 
-        if (result.code == 1) {
+        if (result.code == 1 || result.code == 2) {
 
           // this.global.presentAlert("Check sensors", "All sensors found", "OK");
           this.sensorCheckButton = "";
           this.checkDataFromPropertyFile();
 
-        } else if (result.code == 2) {
-          this.global.presentAlert("Check sensors", "No needed sensors. Please uninstall application", "Exit");
-        } else if (result.code == 3 && this.sensorCheckButton == "") {
+        }
+        // else if (result.code == 2) {
+        //   this.global.presentAlert("Check sensors", "No needed sensors. Please uninstall application", "Exit");
+        // }
+        else if (result.code == 3 && this.sensorCheckButton == "") {
           this.global.presentAlert("Check sensors", "GPS not found. Please make sure that GPS is on and application has permission to use it", "OK");
           this.sensorCheckButton = "Check sensors again";
         } else if (result.code == 3 && this.sensorCheckButton != "") {
@@ -167,7 +169,7 @@ export class HomePage {
         // =============== start collect log even if no right wifi connection
         if (this.logSaveCounter == this.timeLogWrite) {
 
-          this.global.clOnScreen9 = "saveLog + counter=" + this.stautusCheckGeneralCounter;
+          // this.global.clOnScreen9 = "saveLog + counter=" + this.stautusCheckGeneralCounter;
           this.localDataSaveService.saveLog();
           // console.log("logSaveCounter reach " + this.timeLogWrite);
           this.logSaveCounter = 0;
@@ -295,6 +297,9 @@ export class HomePage {
   }
 
   private startAutoAppLaunch() {
+
+    try {
+    this.global.saveErrorLog("startAutoAppLaunch","Start Function" );
     var defaultBackgroundStateName = "Сбор данных";
 
     if (this.stateName != "") {
@@ -308,21 +313,31 @@ export class HomePage {
 
     this.platform.ready().then(
       () => {
+
+        // this.global.saveErrorLog("startAutoAppLaunch","Plarform Ready" );
         cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
+        // this.global.saveErrorLog("startAutoAppLaunch","After autostart Enable" );
         cordova.plugins.backgroundMode.setDefaults({
           text: defaultBackgroundStateName,
           title: 'CHERRY',
           icon: "icon",
           ticker: defaultBackgroundStateName,
+          color: '#9f4a9d',
           isPublic: true,
           resume: true,
         });
 
         // cordova.plugins.backgroundMode.enable();
+        // this.global.clOnScreen9 = "before platform check";
+        // this.global.saveErrorLog("startAutoAppLaunch","before platform check" );
 
         if( this.platform.is('android') ){
+          this.global.saveErrorLog("startAutoAppLaunch","after platform Android check" );
           cordova.plugins.backgroundMode.enable();
-
+          // this.global.clOnScreen9 = "powerManagement.dim";
+          // this.global.saveErrorLog("startAutoAppLaunch","before platform check" );
+          // this.global.saveErrorLog("startAutoAppLaunch","window= " + window );
+          this.global.saveErrorLog("startAutoAppLaunch","window.powerManagement= " + JSON.stringify(window.powerManagement) );
           window.powerManagement.dim(function() {
             // console.log('Wakelock acquired');
             this.global.saveErrorLog("startAutoAppLaunch","Wakelock acquired" );
@@ -343,20 +358,25 @@ export class HomePage {
 
       }
     );
+
+    }
+    catch(err) {
+      this.global.saveErrorLog("startAutoAppLaunch","try-catch" + err );
+    }
   }
 
   private changeStatusInBackGround() {
     // this.clOnScreen3 = "changeStatusInBackGround= " + this.stateName;
 
-    this.platform.ready().then(
-      () => {
-        cordova.plugins.backgroundMode.configure({
-          text: 'Статус - ' + this.stateName,
-          ticker: this.stateName,
-
-        });
-      }
-    );
+    // this.platform.ready().then(
+    //   () => {
+    //     cordova.plugins.backgroundMode.configure({
+    //       text: 'Статус - ' + this.stateName,
+    //       ticker: this.stateName,
+    //       isPublic: true,
+    //     });
+    //   }
+    // );
 
   }
 
@@ -419,7 +439,7 @@ export class HomePage {
               resolve({code: 1, status: "All needed sensors have been found"});
             } else if (!this.global.isGyroscopeAvailable) {
               // this.global.presentAlert("Check sensors", "Gyroscope not found", "OK");
-              this.global.isAllSensorAvailable = "false";
+              this.global.isAllSensorAvailable = "true";
               resolve({code: 2, status: "Gyroscope has not been found"});
             } else if (!this.global.isGPSAvailable) {
               // this.global.presentAlert("Check sensors", "GPS not found", "OK");
