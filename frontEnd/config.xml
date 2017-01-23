@@ -84,5 +84,5 @@
     <plugin name="cordova-plugin-file" spec="~4.3.1" />
     <icon src="resources/android/icon/drawable-xhdpi-icon.png" />
     <plugin name="cordova-plugin-background-mode" spec="https://github.com/katzer/cordova-plugin-background-mode.git" />
-    <plugin name="at.gofg.sportscomputer.powermanagement" spec="https://github.com/boltex/cordova-plugin-powermanagement.git" />
+    <plugin name="at.gofg.sportscomputer.powermanagement" spec="~1.1.2" />
 </widget>

@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {NavController, Platform} from 'ionic-angular';
+import {PowerManagement} from "ionic-native";
 
 // import {Network} from 'ionic-native';
 import {ConnectivityService} from '../../providers/connectivity-service';
@@ -16,7 +17,9 @@ import 'rxjs/Rx';
 
 // declare var window: any;
 declare var cordova: any;
-declare var window:any;
+// declare var powerManagement:any;
+// declare var window:any;
+// declare let WifiWizard: any;
 // // declare var Connection: any;
 
 
@@ -273,6 +276,67 @@ export class HomePage {
 
     this.platform.ready().then(
       () => {
+
+        // if (!!cordova) this.global.saveErrorLog("!!cordova",'DEBUG || ' + JSON.stringify(cordova.plugins));
+        // if (!!window.plugins)  this.global.saveErrorLog("!!window.plugins",'DEBUG || ' + JSON.stringify(window.plugins));
+
+        // try{
+        // this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(powerManagement);
+        //   this.global.saveErrorLog("cordova.plugins", "powerManagement= " + JSON.stringify(powerManagement));
+        //
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> cordova= " + err;
+        //   this.global.saveErrorLog("cordova.plugins", "catch-err -> cordova= " + err);
+        //
+        // }
+
+        // try{
+        // this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(PowerManagement);
+        //   this.global.saveErrorLog("powerManagement", "PowerManagement= " + JSON.stringify(PowerManagement));
+        //
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> powerManagement= " + err;
+        //   this.global.saveErrorLog("powerManagement", "catch-err -> powerManagement= " + err);
+        //
+        // }
+        // try{
+        // this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(window.plugins.PowerManagement);
+        //   this.global.saveErrorLog("powerManagement", "window.plugins.PowerManagement= " + JSON.stringify(window.plugins.PowerManagement));
+        //
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> window.plugins.PM= " + err;
+        //   this.global.saveErrorLog("powerManagement", "catch-err -> window.plugins.PM= " + err);
+        //
+        // }
+        // try{
+        //   this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(window.plugins);
+        //   this.global.saveErrorLog("powerManagement", "window.plugins= " + JSON.stringify(window.plugins));
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> window.plugins= " + err;
+        //   this.global.saveErrorLog("powerManagement", "catch-err -> window.plugins= " + err);
+        // }
+        // try {
+        //   this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(window.PowerManagement);
+        //   this.global.saveErrorLog("powerManagement", "window.PowerManagement= " + JSON.stringify(window.PowerManagement));
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> window.plugins= " + err;
+        //   this.global.saveErrorLog("powerManagement", "catch-err -> window.plugins= " + err);
+        // }
+        // try {
+        //   this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(window.powerManagement);
+        //   this.global.saveErrorLog("powerManagement", "window.powerManagement= " + JSON.stringify(window.powerManagement));
+        // }
+        // catch (err) {
+        //   this.global.clOnScreen9 = "catch-err -> window.powerManagement= " + err;
+        //   this.global.saveErrorLog("powerManagement", "catch-err -> window.powerManagement= " + err);
+        // }
+
+
         this.accelerometerService.startWatchAcceleration();
         this.gyroscopeService.startWatchGyroscope();
         this.geoLocationService.startWatchGeolocation();
@@ -299,69 +363,109 @@ export class HomePage {
   private startAutoAppLaunch() {
 
     try {
-    this.global.saveErrorLog("startAutoAppLaunch","Start Function" );
-    var defaultBackgroundStateName = "Сбор данных";
+      this.global.saveErrorLog("startAutoAppLaunch", "Start Function");
+      var defaultBackgroundStateName = "Сбор данных";
 
-    if (this.stateName != "") {
-      defaultBackgroundStateName = this.stateName;
-    } else if (this.global.stateStatus != "" ){
-      defaultBackgroundStateName = "this.global.stateStatus: " + this.global.stateStatus ;
-    } else {
-      defaultBackgroundStateName = "Сбор данных";
-    }
+      if (this.stateName != "") {
+        defaultBackgroundStateName = this.stateName;
+      } else if (this.global.stateStatus != "") {
+        defaultBackgroundStateName = "this.global.stateStatus: " + this.global.stateStatus;
+      } else {
+        defaultBackgroundStateName = "Сбор данных";
+      }
 
 
-    this.platform.ready().then(
-      () => {
+      this.platform.ready().then(
+        () => {
 
-        // this.global.saveErrorLog("startAutoAppLaunch","Plarform Ready" );
-        cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
-        // this.global.saveErrorLog("startAutoAppLaunch","After autostart Enable" );
-        cordova.plugins.backgroundMode.setDefaults({
-          text: defaultBackgroundStateName,
-          title: 'CHERRY',
-          icon: "icon",
-          ticker: defaultBackgroundStateName,
-          color: '#9f4a9d',
-          isPublic: true,
-          resume: true,
-        });
+          // this.global.saveErrorLog("startAutoAppLaunch","Plarform Ready" );
+          cordova.plugins.autoStart.enable(); // autostart app after phone re-boot
+          // this.global.saveErrorLog("startAutoAppLaunch","After autostart Enable" );
+          cordova.plugins.backgroundMode.setDefaults({
+            text: defaultBackgroundStateName,
+            title: 'CHERRY',
+            icon: "icon",
+            ticker: defaultBackgroundStateName,
+            color: '#9f4a9d',
+            isPublic: true,
+            resume: true,
+          });
 
-        // cordova.plugins.backgroundMode.enable();
-        // this.global.clOnScreen9 = "before platform check";
-        // this.global.saveErrorLog("startAutoAppLaunch","before platform check" );
-
-        if( this.platform.is('android') ){
-          this.global.saveErrorLog("startAutoAppLaunch","after platform Android check" );
-          cordova.plugins.backgroundMode.enable();
-          // this.global.clOnScreen9 = "powerManagement.dim";
+          // cordova.plugins.backgroundMode.enable();
+          // this.global.clOnScreen9 = "before platform check";
           // this.global.saveErrorLog("startAutoAppLaunch","before platform check" );
-          // this.global.saveErrorLog("startAutoAppLaunch","window= " + window );
-          this.global.saveErrorLog("startAutoAppLaunch","window.powerManagement= " + JSON.stringify(window.powerManagement) );
-          window.powerManagement.dim(function() {
-            // console.log('Wakelock acquired');
-            this.global.saveErrorLog("startAutoAppLaunch","Wakelock acquired" );
-          }, function() {
-            // console.log('Failed to acquire wakelock');
-            this.global.saveErrorLog("startAutoAppLaunch","Failed to acquire wakelock" );
-          });
-          window.powerManagement.setReleaseOnPause(false, function() {
-            // console.log('setReleaseOnPause successfully');
-            this.global.saveErrorLog("startAutoAppLaunch","setReleaseOnPause successfully" );
-          }, function() {
-            // console.log('Failed to set');
-            this.global.saveErrorLog("startAutoAppLaunch","Failed to set" );
-          });
+
+          if (this.platform.is('android')) {
+            // this.global.saveErrorLog("startAutoAppLaunch","after platform Android check" );
+            cordova.plugins.backgroundMode.enable();
+
+
+            // try{
+            //   this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(powerManagement);
+            //   this.global.saveErrorLog("cordova.plugins", "powerManagement= " + JSON.stringify(powerManagement));
+            //
+            // }
+            // catch (err) {
+            //   this.global.clOnScreen9 = "catch-err -> cordova= " + err;
+            //   this.global.saveErrorLog("cordova.plugins", "catch-err -> cordova= " + err);
+            //
+            // }
+
+            // this.global.clOnScreen9 = "powerManagement.dim";
+            // this.global.saveErrorLog("startAutoAppLaunch","before platform check" );
+            // this.global.saveErrorLog("startAutoAppLaunch","window= " + window );
+            // this.global.saveErrorLog("startAutoAppLaunch","window.powerManagement= " + JSON.stringify(PowerManagement) );
+            // this.global.clOnScreen9 = "powerManagement= " + JSON.stringify(PowerManagement);
+            // powerManagement.dim(function () {
+            //   // console.log('Wakelock acquired');
+            //   this.global.saveErrorLog("startAutoAppLaunch", "Wakelock acquired");
+            // }, function () {
+            //   // console.log('Failed to acquire wakelock');
+            //   this.global.saveErrorLog("startAutoAppLaunch", "Failed to acquire wakelock");
+            // });
+            // powerManagement.setReleaseOnPause(false, function () {
+            //   // console.log('setReleaseOnPause successfully');
+            //   this.global.saveErrorLog("startAutoAppLaunch", "setReleaseOnPause successfully");
+            // }, function () {
+            //   // console.log('Failed to set');
+            //   this.global.saveErrorLog("startAutoAppLaunch", "Failed to set");
+            // });
+
+            PowerManagement.dim().then(
+              () => {
+                this.global.clOnScreen9 = "Wakelock acquired";
+                this.global.saveErrorLog("startAutoAppLaunch", "Wakelock acquired");
+              }
+            ).catch(
+              (err) => {
+                this.global.clOnScreen9 = "Failed to acquire wakelock: " + JSON.stringify(err);
+                this.global.saveErrorLog("startAutoAppLaunch", "Failed to acquire wakelock: " + JSON.stringify(err) );
+              }
+            );
+
+            PowerManagement.setReleaseOnPause(false).then(
+              () => {
+                this.global.clOnScreen9 = "setReleaseOnPause successfully";
+                this.global.saveErrorLog("startAutoAppLaunch", "setReleaseOnPause successfully");
+              }
+            ).catch(
+              (err) => {
+                this.global.clOnScreen9 = "Failed to set: " + JSON.stringify(err);
+                this.global.saveErrorLog("startAutoAppLaunch", "Failed to set: " + JSON.stringify(err) );
+              }
+            );
+
+
+
+          }
+
 
         }
-
-
-      }
-    );
+      );
 
     }
-    catch(err) {
-      this.global.saveErrorLog("startAutoAppLaunch","try-catch" + err );
+    catch (err) {
+      this.global.saveErrorLog("startAutoAppLaunch", "try-catch" + err);
     }
   }
 

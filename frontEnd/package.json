@@ -38,8 +38,7 @@
     "cordova-plugin-splashscreen",
     "ionic-plugin-keyboard",
     "cordova-plugin-network-information",
-    "com.pylonproducts.wifiwizard",
-    "at.gofg.sportscomputer.powermanagement"
+    "com.pylonproducts.wifiwizard"
   ],
   "cordovaPlatforms": [
     "ios",
