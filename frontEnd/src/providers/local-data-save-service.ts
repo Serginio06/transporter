@@ -113,7 +113,7 @@ export class LocalDataSaveService {
   saveCSVFile(): any {
 
     var currentTime = this.global.transformTimeStamp(0, 2);
-    var fileContent: string;
+    // var fileContent: string;
 
     // this.appCSVFile = "data_ID_" + this.global.sessionID + "_" + currentTime + ".csv";
 
@@ -122,27 +122,55 @@ export class LocalDataSaveService {
       (fileContent) => {
 
         // this.clOnScreen5 = "prepareCSVconent: " + fileContent;
-
-        return this.platform.ready().then(
+        return this.global.globalCleanDataFile().then(
           () => {
-            return File.writeFile(
-              this.global.appFilesDirectory,
-              this.global.appCSVFile,
-              fileContent,
-              {replace: true}
-            )
-              .then(
-                (result) => {
+            return this.platform.ready().then(
+              () => {
+                return File.writeFile(
+                  this.global.appFilesDirectory,
+                  this.global.appCSVFile,
+                  fileContent,
+                  {replace: true}
+                )
+                  .then(
+                    (result) => {
 
-                  return this.serverService.sendDataToServer(fileContent, "data");
-                }
-              );
+                      return this.serverService.sendDataToServer(fileContent, "data");
 
+                    }
+                  );
+
+
+              }
+              // );
+
+            );
 
           }
-          // );
-
         );
+
+
+        // return this.platform.ready().then(
+        //   () => {
+        //     return File.writeFile(
+        //       this.global.appFilesDirectory,
+        //       this.global.appCSVFile,
+        //       fileContent,
+        //       {replace: true}
+        //     )
+        //       .then(
+        //         (result) => {
+        //
+        //           // return this.serverService.sendDataToServer(fileContent, "data");
+        //
+        //         }
+        //       );
+        //
+        //
+        //   }
+        //   // );
+        //
+        // );
 
       }
     );
