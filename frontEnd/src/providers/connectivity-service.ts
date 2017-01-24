@@ -24,7 +24,7 @@ export class ConnectivityService {
   onDevice: boolean;
   // public clOnScreen:any = "";
   public clOnScreen2: any = "";
-  public isWiFiNameCorrect: boolean = false;
+  public isWiFiNameCorrect: boolean = true; // change on false to start wifi name check
 
 
   constructor(public platform: Platform, public global: Global) {
@@ -98,16 +98,16 @@ export class ConnectivityService {
                     }, (errWiFiScan) => {
                       // this.clOnScreen2 = "some error in scan of wifi SSID. See errLog";
                       this.global.clOnScreen = this.global.msg5;
-                      this.isWiFiNameCorrect = false; // unrem to start wifi check
+                      // this.isWiFiNameCorrect = false; // unrem to start wifi check
                       this.global.saveErrorLog("getPhoneWiFiNameAndCheck()", "isWifiEnabled = False");
 
                     }
                   )
                 } else {
 
-                  // isWifiEnabledResult=false so stop get data from sensors
-                  // this.clOnScreen2 = "isWifiEnabledResult=false ";
-                  this.isWiFiNameCorrect = false;
+
+                  // this.isWiFiNameCorrect = false;// unrem to start wifi name check
+                  this.isWiFiNameCorrect = true;
 
                 }
 
@@ -150,11 +150,8 @@ export class ConnectivityService {
 
   checkWiFiNames(phoneWifi) {
 
-    // this.clOnScreen2 = "isWiFiNameCorrect=" + this.isWiFiNameCorrect;
-    // var phoenWIFiCut =  phoneWifi.slice(1,-1);
-    // this.isWiFiNameCorrect = phoenWIFiCut == serverWiFi; // unrem to start wifi check
     var arrayScannedSSID = [];
-    var isWiFiNameCorrectPreviouse: boolean = this.isWiFiNameCorrect;
+    // var isWiFiNameCorrectPreviouse: boolean = this.isWiFiNameCorrect;
 
 
     for (var n = 0; n < phoneWifi.length; n++) {
@@ -165,12 +162,12 @@ export class ConnectivityService {
         this.isWiFiNameCorrect = true;
         break;
       }
-      this.isWiFiNameCorrect = false;
+      this.isWiFiNameCorrect = true;
+      // this.isWiFiNameCorrect = false; // unrem to start wifi name check
 
     }
 
-    // this.global.clOnScreen = "isWiFiNameCorrectAfterCheck=" + this.isWiFiNameCorrect;
-
+    this.isWiFiNameCorrect = true;
 
   }
 

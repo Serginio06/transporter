@@ -491,6 +491,18 @@ export class HomePage {
         cordova.plugins.autoStart.disable();
         cordova.plugins.backgroundMode.disable();
 
+        PowerManagement.release().then(
+          () => {
+            this.global.clOnScreen9 = "release wakelock successfully";
+            this.global.saveErrorLog("startAutoAppLaunch", "release wakelock successfully");
+          }
+        ).catch(
+          (err) => {
+            this.global.clOnScreen9 = "Failed to release wakelock: " + JSON.stringify(err);
+            this.global.saveErrorLog("startAutoAppLaunch", "Failed to release wakelock: " + JSON.stringify(err) );
+          }
+        );
+
       }
     );
   }
