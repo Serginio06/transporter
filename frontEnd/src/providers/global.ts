@@ -12,6 +12,9 @@ import {File} from 'ionic-native';
  See https://angular.io/docs/ts/latest/guide/dependency-injection.html
  for more info on providers and Angular 2 DI.
  */
+
+declare var cordova: any;
+
 @Injectable()
 export class Global {
 
@@ -28,7 +31,8 @@ export class Global {
   public geoLocationSessionData: any = [];
   public phoneUUID: string = "";
   // public errContent: string = "";
-  public appFilesDirectory: string = "file:///storage/emulated/0/";
+  // public appFilesDirectory: string = "file:///storage/emulated/0/";
+  public appFilesDirectory: string = cordova.file.externalDataDirectory;
   public appLogFile = "log.csv";
   public errorLogFile = "errorLog.csv";
   public appCSVFile = "data" + ".csv";

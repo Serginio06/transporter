@@ -50,7 +50,7 @@ export class LocalDataSaveService {
 
 
     // let folderpath = cordova.file.externalApplicationStorageDirectory;
-    let folderpath = cordova.file.externalDataDirectory;
+    // let folderpath = cordova.file.externalDataDirectory;
 
     // let folderpath = "file:///storage/emulated/0/";
 
