@@ -113,6 +113,8 @@ export class ServerService {
           HTTP.post(SERVER_URL, body, headers)
             .then(data => {
 
+              this.global.clOnScreen = this.global.msg8;
+
               if (dataType == "log") {
                 this.global.globalCleanLogFile();
               } else if (dataType == "data") {
@@ -126,7 +128,7 @@ export class ServerService {
             .catch(error => {
 
               // this.localDataSaveService.saveErrorLog(JSON.stringify(error));
-              // this.global.clOnScreen = this.global.msg3;
+              this.global.clOnScreen = this.global.msg3;
               this.global.saveErrorLog("sendDataToServer()", "Err during data sending: " + JSON.stringify(error));
               // console.log(error);
               // console.log(error.status);
@@ -142,14 +144,14 @@ export class ServerService {
         }
 
       } else {
-        // this.clOnScreen4 = "Phone is offline. Try send data later";
+        this.global.clOnScreen = this.global.msg7;
         // this.global.saveErrorLog("sendDataToServer()", "Phone is offline. Try send data later");
       }
 
     }
     catch (err) {
 
-      // this.global.clOnScreen9 = "err in send data/log to server";
+      this.global.clOnScreen = this.global.msg3;
       this.global.saveErrorLog("sendDataToServer()", "try-catch err: " + err);
     }
   }

@@ -353,7 +353,8 @@ export class HomePage {
       () => {
         // this.serverService.sendDataToServer();
         this.localDataSaveService.saveCSVFile();
-        this.global.clOnScreen = "Сессия успешно записана в csv-файл "
+        // this.global.clOnScreen = "Сессия успешно записана в csv-файл ";
+        // this.global.clOnScreen = this.global.msg9;
       }, 1000
     );
 

@@ -58,11 +58,15 @@ export class Global {
   public msg3 = "Err during data sending. See errorLog file";
   public msg4 = "Technical error. Please contact application administrator (log file included)";
   public msg5 = "Please turn on your Wi-Fi";
+  public msg6 = "Невозможно отправить данные на сервер. Убедитесь что вы подключены к Wi-Fi и нажмите кнопку, а затем stop для повторной попытки";
+  public msg7 = "Нет доступа к сети. Попробуйте позже";
+  public msg8 = "Данные успешно отправлены на сервер";
+  public msg9 = "Сессия успешно записана в csv-файл";
   public generalSpinnerMsg = "Please wait...";
   public spinnerSensorCheckMsg = "Checking sensors availability...";
 
   constructor(public platform: Platform, public alertController: AlertController, public loadingController: LoadingController) {
-    console.log('Hello Global Provider');
+    // console.log('Hello Global Provider');
     this.propertyObj.sessionId = this.sessionID;
     this.propertyObj.status = this.stateStatus;
   }

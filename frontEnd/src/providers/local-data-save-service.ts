@@ -134,7 +134,7 @@ export class LocalDataSaveService {
                 )
                   .then(
                     (result) => {
-
+                      this.global.clOnScreen = this.global.msg9;
                       return this.serverService.sendDataToServer(fileContent, "data");
 
                     }
