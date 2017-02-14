@@ -1,10 +1,12 @@
 {
-  "name": "frontEnd",
-  "app_id": "",
+  "name": "Cherry",
   "v2": true,
   "typescript": true,
-    "proxies": [{
-    "path": "/api",
-    "proxyUrl": "https://cherry2016.herokuapp.com"
-  }]
+  "proxies": [
+    {
+      "path": "/api",
+      "proxyUrl": "https://cherry2016.herokuapp.com"
+    }
+  ],
+  "app_id": "720b0145"
 }

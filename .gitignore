@@ -9,6 +9,7 @@ mongodb/*
 /frontend
 /Video
 *.log
+._user_data.csv
 **/npm-debug.log
 .DS_Store
 **/*.env
